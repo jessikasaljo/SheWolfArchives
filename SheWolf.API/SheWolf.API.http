@@ -1,0 +1,6 @@
+@SheWolf.API_HostAddress = http://localhost:5252
+
+GET {{SheWolf.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
