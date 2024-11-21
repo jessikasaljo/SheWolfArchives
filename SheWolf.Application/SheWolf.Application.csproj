@@ -7,20 +7,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Commands\Author\AddAuthor\" />
-    <Folder Include="Commands\Author\DeleteAuthor\" />
-    <Folder Include="Commands\Author\UpdateAuthor\" />
-    <Folder Include="Commands\Book\AddBook\" />
-    <Folder Include="Commands\Book\DeleteBook\" />
-    <Folder Include="Commands\Book\UpdateBook\" />
-    <Folder Include="Queries\Author\GetAllById\" />
-    <Folder Include="Queries\Author\GetAll\" />
-    <Folder Include="Queries\Book\GetAll\" />
-    <Folder Include="Queries\Book\GetAllById\" />
+    <PackageReference Include="MediatR" Version="12.4.1" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="MediatR" Version="12.4.1" />
+    <ProjectReference Include="..\SheWolf.Domain\SheWolf.Domain.csproj" />
   </ItemGroup>
 
 </Project>
