@@ -9,12 +9,6 @@ namespace SheWolf.Domain.Entities
         [Display(Name = "Author Name")]
         public string Name { get; set; }
 
-        [MinLength(1, ErrorMessage = "An author must have at least one book.")]
         public ICollection<Book> Books { get; set; }
-
-        public Author()
-        {
-            Books = new List<Book>();
-        }
     }
 }
