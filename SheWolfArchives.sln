@@ -4,29 +4,14 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 17.10.34928.147
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SheWolf.API", "SheWolf.API\SheWolf.API.csproj", "{C3B42EA3-0DC2-4C61-8E86-48F95F0F6273}"
-	ProjectSection(ProjectDependencies) = postProject
-		{30F074E3-ABCC-46A4-838C-7ADE0AEB7C1B} = {30F074E3-ABCC-46A4-838C-7ADE0AEB7C1B}
-	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SheWolf.Application", "SheWolf.Application\SheWolf.Application.csproj", "{30F074E3-ABCC-46A4-838C-7ADE0AEB7C1B}"
-	ProjectSection(ProjectDependencies) = postProject
-		{5815E3B0-A694-4ABE-9008-3C8BDB35EA8A} = {5815E3B0-A694-4ABE-9008-3C8BDB35EA8A}
-	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SheWolf.Domain", "SheWolf.Domain\SheWolf.Domain.csproj", "{5815E3B0-A694-4ABE-9008-3C8BDB35EA8A}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SheWolf.Infrastructure", "SheWolf.Infrastructure\SheWolf.Infrastructure.csproj", "{C783EF61-67EE-4A8E-B3BA-3ECCE5062556}"
-	ProjectSection(ProjectDependencies) = postProject
-		{30F074E3-ABCC-46A4-838C-7ADE0AEB7C1B} = {30F074E3-ABCC-46A4-838C-7ADE0AEB7C1B}
-		{5815E3B0-A694-4ABE-9008-3C8BDB35EA8A} = {5815E3B0-A694-4ABE-9008-3C8BDB35EA8A}
-	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SheWolf.Tests", "SheWolf.Tests\SheWolf.Tests.csproj", "{C0BB04DE-FF9C-4E2B-99B2-EEC0C0942854}"
-	ProjectSection(ProjectDependencies) = postProject
-		{30F074E3-ABCC-46A4-838C-7ADE0AEB7C1B} = {30F074E3-ABCC-46A4-838C-7ADE0AEB7C1B}
-		{5815E3B0-A694-4ABE-9008-3C8BDB35EA8A} = {5815E3B0-A694-4ABE-9008-3C8BDB35EA8A}
-		{C783EF61-67EE-4A8E-B3BA-3ECCE5062556} = {C783EF61-67EE-4A8E-B3BA-3ECCE5062556}
-	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SheWolf.Frontend", "SheWolf.Frontend\SheWolf.Frontend.csproj", "{8AE49399-41D9-4D2A-80F6-0B2EE1D8B623}"
 EndProject
