@@ -1,3 +1,6 @@
+using SheWolf.Application;
+using SheWolf.Infrastructure;
+using SheWolf.Infrastructure.Database;
 
 namespace SheWolf.API
 {
@@ -8,11 +11,14 @@ namespace SheWolf.API
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
+            builder.Services.AddSingleton<MockDatabase>();
 
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
+
+            builder.Services.AddApplication().AddInfrastructure();
 
             var app = builder.Build();
 
@@ -26,7 +32,6 @@ namespace SheWolf.API
             app.UseHttpsRedirection();
 
             app.UseAuthorization();
-
 
             app.MapControllers();
 

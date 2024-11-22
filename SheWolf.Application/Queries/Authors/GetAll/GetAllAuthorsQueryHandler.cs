@@ -16,6 +16,7 @@ namespace SheWolf.Application.Queries.Authors.GetAll
         public Task<List<Author>> Handle(GetAllAuthorsQuery request, CancellationToken cancellationToken)
         {
             List<Author> allAuthorsFromMockDatabase = mockDatabase.authors;
+
             return Task.FromResult(allAuthorsFromMockDatabase);
         }
     }

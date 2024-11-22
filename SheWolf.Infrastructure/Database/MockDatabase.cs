@@ -9,10 +9,10 @@ namespace SheWolf.Infrastructure.Database
 
         public MockDatabase()
         {
-            var author1 = new Author { Id = Guid.NewGuid(), Name = "Pauline Harmange" };
-            var author2 = new Author { Id = Guid.NewGuid(), Name = "Allison Kelley" };
-            var author3 = new Author { Id = Guid.NewGuid(), Name = "Katy Brent" };
-            var author4 = new Author { Id = Guid.NewGuid(), Name = "François Camoin" };
+            var author1 = new Author { Id = Guid.NewGuid(), Name = "Pauline Harmange", Books = new List<Book>() };
+            var author2 = new Author { Id = Guid.NewGuid(), Name = "Allison Kelley", Books = new List<Book>() };
+            var author3 = new Author { Id = Guid.NewGuid(), Name = "Katy Brent", Books = new List<Book>() };
+            var author4 = new Author { Id = Guid.NewGuid(), Name = "François Camoin", Books = new List<Book>() };
 
             var book1 = new Book { Id = Guid.NewGuid(), Title = "I hate men", Author = author1 };
             var book2 = new Book { Id = Guid.NewGuid(), Title = "Jokes to offend men", Author = author2 };
