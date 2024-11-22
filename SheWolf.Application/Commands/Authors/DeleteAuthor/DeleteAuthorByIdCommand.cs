@@ -1,12 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using MediatR;
+using SheWolf.Domain.Entities;
 
 namespace SheWolf.Application.Commands.Authors.DeleteAuthor
 {
-    internal class DeleteAuthorByIdCommand
+    public class DeleteAuthorByIdCommand : IRequest<Author>
     {
+        public Guid Id { get; }
+
+        public DeleteAuthorByIdCommand(Guid authorId)
+        {
+            Id = authorId;
+        }
     }
 }

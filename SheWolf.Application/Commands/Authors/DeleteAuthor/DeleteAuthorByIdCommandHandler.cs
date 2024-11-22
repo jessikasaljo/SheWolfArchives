@@ -1,12 +1,30 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using MediatR;
+using SheWolf.Domain.Entities;
+using SheWolf.Infrastructure.Database;
 
 namespace SheWolf.Application.Commands.Authors.DeleteAuthor
 {
-    internal class DeleteAuthorByIdCommandHandler
+    public class DeleteAuthorByIdCommandHandler : IRequestHandler<DeleteAuthorByIdCommand, Author>
     {
+        private readonly MockDatabase mockDatabase;
+
+        public DeleteAuthorByIdCommandHandler(MockDatabase mockDatabase)
+        {
+            this.mockDatabase = mockDatabase;
+        }
+
+        public Task<Author> Handle(DeleteAuthorByIdCommand request, CancellationToken cancellationToken)
+        {
+            Author? authorToDelete = mockDatabase.authors.FirstOrDefault(author => author.Id == request.Id);
+
+            if (authorToDelete == null)
+            {
+                return Task.FromResult<Author>(null!);
+            }
+
+            mockDatabase.authors.Remove(authorToDelete);
+
+            return Task.FromResult(authorToDelete);
+        }
     }
 }
