@@ -7,7 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\SheWolf.Application\SheWolf.Application.csproj" />
     <ProjectReference Include="..\SheWolf.Domain\SheWolf.Domain.csproj" />
   </ItemGroup>
 

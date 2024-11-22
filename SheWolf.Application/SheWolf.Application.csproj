@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\SheWolf.Domain\SheWolf.Domain.csproj" />
+    <ProjectReference Include="..\SheWolf.Infrastructure\SheWolf.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>
