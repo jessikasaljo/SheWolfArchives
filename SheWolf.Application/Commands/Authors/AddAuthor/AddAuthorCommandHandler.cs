@@ -18,7 +18,8 @@ namespace SheWolf.Application.Commands.Authors.AddAuthor
             Author authorToCreate = new()
             {
                 Id = Guid.NewGuid(),
-                Name = request.NewAuthor.Name
+                Name = request.NewAuthor.Name,
+                Books = new List<Book>()
             };
 
             mockDatabase.authors.Add(authorToCreate);
