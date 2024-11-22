@@ -8,10 +8,12 @@
 
   <ItemGroup>
     <PackageReference Include="MediatR" Version="12.4.1" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\SheWolf.Domain\SheWolf.Domain.csproj" />
+    <ProjectReference Include="..\SheWolf.Infrastructure\SheWolf.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>
