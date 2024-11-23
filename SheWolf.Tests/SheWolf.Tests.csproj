@@ -26,4 +26,9 @@
     <Using Include="Xunit" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="CommandTests\BookTests\" />
+    <Folder Include="QueryTests\" />
+  </ItemGroup>
+
 </Project>
