@@ -6,7 +6,9 @@ namespace SheWolf.Domain.Entities
 {
     public class Book : BaseEntity
     {
-        public string? Title { get; set; }
+        [Required]
+        [StringLength(50)]
+        public string Title { get; set; }
 
         [JsonIgnore]
         public Author? Author { get; set; }
