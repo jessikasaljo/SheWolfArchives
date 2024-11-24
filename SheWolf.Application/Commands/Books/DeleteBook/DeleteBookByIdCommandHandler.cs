@@ -21,7 +21,12 @@ namespace SheWolf.Application.Commands.Books.DeleteBook
 
         public Task<Book> Handle(DeleteBookByIdCommand request, CancellationToken cancellationToken)
         {
-            Book? bookToDelete = mockDatabase.books.FirstOrDefault(author => author.Id == request.Id);
+            if (request == null)
+            {
+                throw new ArgumentNullException(nameof(request), "DeleteBookByIdCommand cannot be null.");
+            }
+
+            Book? bookToDelete = mockDatabase.books.FirstOrDefault(book => book.Id == request.Id);
 
             if (bookToDelete == null)
             {

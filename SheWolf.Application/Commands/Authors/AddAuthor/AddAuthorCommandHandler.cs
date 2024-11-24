@@ -15,6 +15,16 @@ namespace SheWolf.Application.Commands.Authors.AddAuthor
 
         public Task<Author> Handle(AddAuthorCommand request, CancellationToken cancellationToken)
         {
+            if (request == null)
+            {
+                throw new ArgumentNullException(nameof(request), "AddAuthorCommand cannot be null.");
+            }
+
+            if (request.NewAuthor == null)
+            {
+                throw new ArgumentNullException(nameof(request.NewAuthor), "NewAuthor cannot be null.");
+            }
+
             Author authorToCreate = new()
             {
                 Id = Guid.NewGuid(),

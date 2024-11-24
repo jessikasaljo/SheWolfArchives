@@ -1,12 +1,6 @@
 ﻿using MediatR;
-using SheWolf.Application.Commands.Authors.AddAuthor;
 using SheWolf.Domain.Entities;
 using SheWolf.Infrastructure.Database;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SheWolf.Application.Commands.Books.AddBook
 {
@@ -21,6 +15,16 @@ namespace SheWolf.Application.Commands.Books.AddBook
 
         public Task<Book> Handle(AddBookCommand request, CancellationToken cancellationToken)
         {
+            if (request == null)
+            {
+                throw new ArgumentNullException(nameof(request), "AddBookCommand cannot be null.");
+            }
+
+            if (request.NewBook == null)
+            {
+                throw new ArgumentNullException(nameof(request.NewBook), "NewBook cannot be null.");
+            }
+
             Book bookToCreate = new()
             {
                 Id = Guid.NewGuid(),
