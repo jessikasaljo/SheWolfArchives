@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SheWolf.Application.Commands.Books.AddBook;
 using SheWolf.Application.Commands.Books.DeleteBook;
@@ -20,7 +21,7 @@ namespace API.Controllers
             this.mediator = mediator;
         }
 
-        //[Authorize]
+        [Authorize]
         [HttpPost]
         [Route("addNewBook")]
         public async Task<IActionResult> AddNewBook([FromBody] Book bookToAdd)
@@ -76,7 +77,7 @@ namespace API.Controllers
             }
         }
 
-        //[Authorize]
+        [Authorize]
         [HttpPut]
         [Route("updateBook/{updatedBookId}")]
         public async Task<IActionResult> UpdateBook([FromBody] Book updatedBook, Guid updatedBookId)
@@ -97,7 +98,7 @@ namespace API.Controllers
             }
         }
 
-        //[Authorize]
+        [Authorize]
         [HttpDelete]
         [Route("deleteBook/{bookToDeleteId}")]
         public async Task<IActionResult> DeleteBook([FromBody] Guid bookToDeleteId)
