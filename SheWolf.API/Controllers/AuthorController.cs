@@ -21,7 +21,7 @@ namespace SheWolf.API.Controllers
             this.mediator = mediator;
         }
 
-        //[Authorize]
+        [Authorize]
         [HttpPost]
         [Route("addNewAuthor")]
         public async Task<IActionResult> AddNewAuthor([FromBody] Author authorToAdd)
@@ -77,7 +77,7 @@ namespace SheWolf.API.Controllers
             }
         }
 
-        //[Authorize]
+        [Authorize]
         [HttpPut]
         [Route("updateAuthor/{updatedAuthorId}")]
         public async Task<IActionResult> UpdateAuthor([FromBody] Author updatedAuthor, Guid updatedAuthorId)
@@ -98,7 +98,7 @@ namespace SheWolf.API.Controllers
             }
         }
 
-        //[Authorize]
+        [Authorize]
         [HttpDelete]
         [Route("deleteAuthor/{authorToDeleteId}")]
         public async Task<IActionResult> DeleteAuthor([FromBody] Guid authorToDeleteId)

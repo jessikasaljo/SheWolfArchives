@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using SheWolf.Application.Queries.Users.Login.Helpers;
 
 namespace SheWolf.Application
 {
@@ -9,6 +10,7 @@ namespace SheWolf.Application
             var assembly = typeof(DependencyInjection).Assembly;
             services.AddMediatR(configuration => configuration.RegisterServicesFromAssembly(assembly));
 
+            services.AddScoped<TokenHelper>();
 
             return services;
         }
