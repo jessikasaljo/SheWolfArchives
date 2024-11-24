@@ -1,2 +1,2 @@
 # SheWolfArchives
-Inlämningsuppgift NBI/Handelsakademin - Clean Architecture, TDD, API
+Inlämningsuppgift NBI/Handelsakademin - Clean Architecture, API, JWT
