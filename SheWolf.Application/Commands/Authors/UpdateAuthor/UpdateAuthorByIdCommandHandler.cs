@@ -15,7 +15,22 @@ namespace SheWolf.Application.Commands.Authors.UpdateAuthor
 
         public Task<Author> Handle(UpdateAuthorByIdCommand request, CancellationToken cancellationToken)
         {
-            Author authorToUpdate = mockDatabase.authors.FirstOrDefault(author => author.Id == request.Id)!;
+            if (request == null)
+            {
+                throw new ArgumentNullException(nameof(request), "UpdateAuthorByIdCommand cannot be null.");
+            }
+
+            if (request.UpdatedAuthor == null)
+            {
+                throw new ArgumentNullException(nameof(request.UpdatedAuthor), "UpdatedAuthor cannot be null.");
+            }
+
+            var authorToUpdate = mockDatabase.authors.FirstOrDefault(author => author.Id == request.Id);
+
+            if (authorToUpdate == null)
+            {
+                throw new InvalidOperationException($"No author found with Id: {request.Id}");
+            }
 
             authorToUpdate.Name = request.UpdatedAuthor.Name;
 

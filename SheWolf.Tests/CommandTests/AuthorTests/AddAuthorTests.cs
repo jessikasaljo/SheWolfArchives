@@ -14,7 +14,7 @@ namespace SheWolf.Tests.CommandTests.AuthorTests
 
             var newAuthor = new Author
             {
-                Name = "Virginia Woolf"
+                Name = "Simone de Beauvoir"
             };
 
             var command = new AddAuthorCommand(newAuthor);

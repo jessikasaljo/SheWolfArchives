@@ -15,6 +15,11 @@ namespace SheWolf.Application.Commands.Authors.DeleteAuthor
 
         public Task<Author> Handle(DeleteAuthorByIdCommand request, CancellationToken cancellationToken)
         {
+            if (request == null)
+            {
+                throw new ArgumentNullException(nameof(request), "DeleteAuthorByIdCommand cannot be null.");
+            }
+
             Author? authorToDelete = mockDatabase.authors.FirstOrDefault(author => author.Id == request.Id);
 
             if (authorToDelete == null)
