@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using SheWolf.Application;
+using SheWolf.Infrastructure;
 using System.Text;
 
 namespace SheWolf.API
