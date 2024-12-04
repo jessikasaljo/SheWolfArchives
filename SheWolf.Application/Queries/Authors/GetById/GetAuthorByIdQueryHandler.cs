@@ -1,22 +1,33 @@
 ﻿using MediatR;
 using SheWolf.Domain.Entities;
-using SheWolf.Infrastructure.Database;
+using SheWolf.Application.Interfaces.RepositoryInterfaces;
 
 namespace SheWolf.Application.Queries.Authors.GetById
 {
     public class GetAuthorByIdQueryHandler : IRequestHandler<GetAuthorByIdQuery, Author>
     {
-        private readonly MockDatabase mockDatabase;
+        private readonly IAuthorRepository _authorRepository;
 
-        public GetAuthorByIdQueryHandler(MockDatabase mockDatabase)
+        public GetAuthorByIdQueryHandler(IAuthorRepository authorRepository)
         {
-            this.mockDatabase = mockDatabase;
+            _authorRepository = authorRepository;
         }
 
-        public Task<Author> Handle(GetAuthorByIdQuery request, CancellationToken cancellationToken)
+        public async Task<Author> Handle(GetAuthorByIdQuery request, CancellationToken cancellationToken)
         {
-            Author wantedAuthor = mockDatabase.authors.FirstOrDefault(author => author.Id == request.Id)!;
-            return Task.FromResult(wantedAuthor);
+            if (request == null)
+            {
+                throw new ArgumentNullException(nameof(request), "GetAuthorByIdQuery cannot be null.");
+            }
+
+            Author wantedAuthor = await _authorRepository.GetAuthorById(request.Id);
+
+            if (wantedAuthor == null)
+            {
+                throw new InvalidOperationException($"Author with ID {request.Id} not found.");
+            }
+
+            return wantedAuthor;
         }
     }
 }

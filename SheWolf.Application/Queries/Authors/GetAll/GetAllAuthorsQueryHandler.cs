@@ -1,23 +1,28 @@
 ﻿using MediatR;
+using SheWolf.Application.Interfaces.RepositoryInterfaces;
 using SheWolf.Domain.Entities;
-using SheWolf.Infrastructure.Database;
 
 namespace SheWolf.Application.Queries.Authors.GetAll
 {
     public class GetAllAuthorsQueryHandler : IRequestHandler<GetAllAuthorsQuery, List<Author>>
     {
-        private readonly MockDatabase mockDatabase;
+        private readonly IAuthorRepository _authorRepository;
 
-        public GetAllAuthorsQueryHandler(MockDatabase mockDatabase)
+        public GetAllAuthorsQueryHandler(IAuthorRepository authorRepository)
         {
-            this.mockDatabase = mockDatabase;
+            _authorRepository = authorRepository;
         }
 
-        public Task<List<Author>> Handle(GetAllAuthorsQuery request, CancellationToken cancellationToken)
+        public async Task<List<Author>> Handle(GetAllAuthorsQuery request, CancellationToken cancellationToken)
         {
-            List<Author> allAuthorsFromMockDatabase = mockDatabase.authors;
+            List<Author> allAuthors = await _authorRepository.GetAllAuthors();
 
-            return Task.FromResult(allAuthorsFromMockDatabase);
+            if (allAuthors == null || !allAuthors.Any())
+            {
+                throw new ArgumentException("Authorlist is empty or null");
+            }
+
+            return allAuthors;
         }
     }
 }

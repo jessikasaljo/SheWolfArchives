@@ -1,35 +1,33 @@
 ﻿using MediatR;
 using SheWolf.Domain.Entities;
-using SheWolf.Infrastructure.Database;
+using SheWolf.Application.Interfaces.RepositoryInterfaces;
 
 namespace SheWolf.Application.Commands.Authors.DeleteAuthor
 {
-    public class DeleteAuthorByIdCommandHandler : IRequestHandler<DeleteAuthorByIdCommand, Author>
+    public class DeleteAuthorByIdCommandHandler : IRequestHandler<DeleteAuthorByIdCommand, string>
     {
-        private readonly MockDatabase mockDatabase;
+        private readonly IAuthorRepository _authorRepository;
 
-        public DeleteAuthorByIdCommandHandler(MockDatabase mockDatabase)
+        public DeleteAuthorByIdCommandHandler(IAuthorRepository authorRepository)
         {
-            this.mockDatabase = mockDatabase;
+            _authorRepository = authorRepository;
         }
 
-        public Task<Author> Handle(DeleteAuthorByIdCommand request, CancellationToken cancellationToken)
+        public async Task<string> Handle(DeleteAuthorByIdCommand request, CancellationToken cancellationToken)
         {
             if (request == null)
             {
                 throw new ArgumentNullException(nameof(request), "DeleteAuthorByIdCommand cannot be null.");
             }
 
-            Author? authorToDelete = mockDatabase.authors.FirstOrDefault(author => author.Id == request.Id);
-
-            if (authorToDelete == null)
+            if (request.Id == Guid.Empty)
             {
-                return Task.FromResult<Author>(null!);
+                throw new ArgumentException("Author ID cannot be an empty GUID.");
             }
 
-            mockDatabase.authors.Remove(authorToDelete);
+            var deletedAuthor = await _authorRepository.DeleteAuthorById(request.Id);
 
-            return Task.FromResult(authorToDelete);
+            return deletedAuthor;
         }
     }
 }

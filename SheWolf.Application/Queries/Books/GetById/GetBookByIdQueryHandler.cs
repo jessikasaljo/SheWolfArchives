@@ -1,22 +1,33 @@
 ﻿using MediatR;
 using SheWolf.Domain.Entities;
-using SheWolf.Infrastructure.Database;
+using SheWolf.Application.Interfaces.RepositoryInterfaces;
 
 namespace SheWolf.Application.Queries.Books.GetById
 {
     public class GetBookByIdQueryHandler : IRequestHandler<GetBookByIdQuery, Book>
     {
-        private readonly MockDatabase mockDatabase;
+        private readonly IBookRepository _bookRepository;
 
-        public GetBookByIdQueryHandler(MockDatabase mockDatabase)
+        public GetBookByIdQueryHandler(IBookRepository bookRepository)
         {
-            this.mockDatabase = mockDatabase;
+            _bookRepository = bookRepository;
         }
 
-        public Task<Book> Handle(GetBookByIdQuery request, CancellationToken cancellationToken)
+        public async Task<Book> Handle(GetBookByIdQuery request, CancellationToken cancellationToken)
         {
-            Book wantedBook = mockDatabase.books.FirstOrDefault(book => book.Id == request.Id)!;
-            return Task.FromResult(wantedBook);
+            if (request == null)
+            {
+                throw new ArgumentNullException(nameof(request), "GetBookByIdQuery cannot be null.");
+            }
+
+            Book wantedBook = await _bookRepository.GetBookById(request.Id);
+
+            if (wantedBook == null)
+            {
+                throw new InvalidOperationException($"Book with ID {request.Id} not found.");
+            }
+
+            return wantedBook;
         }
     }
 }

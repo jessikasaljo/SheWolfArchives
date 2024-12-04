@@ -14,11 +14,11 @@ namespace API.Controllers
     [Route("[controller]")]
     public class BookController : Controller
     {
-        internal readonly IMediator mediator;
+        internal readonly IMediator _mediator;
 
         public BookController(IMediator mediator)
         {
-            this.mediator = mediator;
+            _mediator = mediator;
         }
 
         [Authorize]
@@ -33,7 +33,7 @@ namespace API.Controllers
 
             try
             {
-                var result = await mediator.Send(new AddBookCommand(bookToAdd));
+                var result = await _mediator.Send(new AddBookCommand(bookToAdd));
                 return CreatedAtAction(nameof(GetBookById), new { bookId = result.Id }, result);
             }
             catch (Exception ex)
@@ -48,7 +48,7 @@ namespace API.Controllers
         {
             try
             {
-                var books = await mediator.Send(new GetAllBooksQuery());
+                var books = await _mediator.Send(new GetAllBooksQuery());
                 return Ok(books);
             }
             catch (Exception ex)
@@ -63,7 +63,7 @@ namespace API.Controllers
         {
             try
             {
-                var book = await mediator.Send(new GetBookByIdQuery(bookId));
+                var book = await _mediator.Send(new GetBookByIdQuery(bookId));
                 if (book == null)
                 {
                     return NotFound(new { Message = "Book not found." });
@@ -89,7 +89,7 @@ namespace API.Controllers
 
             try
             {
-                var result = await mediator.Send(new UpdateBookByIdCommand(updatedBook, updatedBookId));
+                var result = await _mediator.Send(new UpdateBookByIdCommand(updatedBook, updatedBookId));
                 return Ok(result);
             }
             catch (Exception ex)
@@ -105,7 +105,7 @@ namespace API.Controllers
         {
             try
             {
-                var result = await mediator.Send(new DeleteBookByIdCommand(bookToDeleteId));
+                var result = await _mediator.Send(new DeleteBookByIdCommand(bookToDeleteId));
                 return Ok(result);
             }
             catch (Exception ex)

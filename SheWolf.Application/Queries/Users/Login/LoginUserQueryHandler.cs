@@ -1,35 +1,32 @@
 ﻿using MediatR;
 using SheWolf.Application.Queries.Users.Login.Helpers;
-using SheWolf.Infrastructure.Database;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using SheWolf.Application.Interfaces.RepositoryInterfaces;
 
 namespace SheWolf.Application.Queries.Users.Login
 {
     public class LogInUserQueryHandler : IRequestHandler<LogInUserQuery, string>
     {
-        private readonly MockDatabase mockDatabase;
-        private readonly TokenHelper tokenHelper;
+        private readonly IUserRepository _userRepository; // Inject the repository
+        private readonly TokenHelper _tokenHelper;
 
-        public LogInUserQueryHandler(MockDatabase mockDatabase, TokenHelper tokenHelper)
+        public LogInUserQueryHandler(IUserRepository userRepository, TokenHelper tokenHelper)
         {
-            this.mockDatabase = mockDatabase;
-            this.tokenHelper = tokenHelper;
+            _userRepository = userRepository;
+            _tokenHelper = tokenHelper;
         }
-        public Task<string> Handle(LogInUserQuery request, CancellationToken cancellationToken)
-        {
-            var user = mockDatabase.users.FirstOrDefault(user => user.Username == request.LogInUser.Username && user.Password == request.LogInUser.Password);
-            if (user == null)
 
+        public async Task<string> Handle(LogInUserQuery request, CancellationToken cancellationToken)
+        {
+            // Use the Login method in the UserRepository to authenticate the user
+            var user = await _userRepository.Login(request.LogInUser.Username, request.LogInUser.Password);
+
+            if (user == null)
             {
                 throw new UnauthorizedAccessException("Invalid username or password");
             }
 
-            string token = tokenHelper.GenerateJwtToken(user);
-            return Task.FromResult(token);
+            string token = _tokenHelper.GenerateJwtToken(user); // Generate token using TokenHelper
+            return token;
         }
     }
 }

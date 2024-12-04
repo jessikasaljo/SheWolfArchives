@@ -2,8 +2,6 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using SheWolf.Application;
-using SheWolf.Infrastructure;
-using SheWolf.Infrastructure.Database;
 using System.Text;
 
 namespace SheWolf.API
@@ -80,8 +78,6 @@ namespace SheWolf.API
                           .AllowAnyMethod();
                 });
             });
-
-            builder.Services.AddSingleton<MockDatabase>();
 
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

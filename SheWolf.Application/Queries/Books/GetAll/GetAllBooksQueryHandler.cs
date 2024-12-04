@@ -1,22 +1,28 @@
 ﻿using MediatR;
+using SheWolf.Application.Interfaces.RepositoryInterfaces;
 using SheWolf.Domain.Entities;
-using SheWolf.Infrastructure.Database;
 
 namespace SheWolf.Application.Queries.Books.GetAll
 {
     public class GetAllBooksQueryHandler : IRequestHandler<GetAllBooksQuery, List<Book>>
     {
-        private readonly MockDatabase mockDatabase;
+        private readonly IBookRepository _bookRepository;
 
-        public GetAllBooksQueryHandler(MockDatabase mockDatabase)
+        public GetAllBooksQueryHandler(IBookRepository bookRepository)
         {
-            this.mockDatabase = mockDatabase;
+            _bookRepository = bookRepository;
         }
 
-        public Task<List<Book>> Handle(GetAllBooksQuery request, CancellationToken cancellationToken)
+        public async Task<List<Book>> Handle(GetAllBooksQuery request, CancellationToken cancellationToken)
         {
-            List<Book> allBooksFromMockDatabase = mockDatabase.books;
-            return Task.FromResult(allBooksFromMockDatabase);
+            List<Book> allBooks = await _bookRepository.GetAllBooks();
+
+            if (allBooks == null || !allBooks.Any())
+            {
+                throw new ArgumentException("Booklist is empty or null");
+            }
+
+            return allBooks;
         }
     }
 }

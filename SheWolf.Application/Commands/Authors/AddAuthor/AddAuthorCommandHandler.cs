@@ -1,19 +1,19 @@
 ﻿using MediatR;
+using SheWolf.Application.Interfaces.RepositoryInterfaces;
 using SheWolf.Domain.Entities;
-using SheWolf.Infrastructure.Database;
 
 namespace SheWolf.Application.Commands.Authors.AddAuthor
 {
     public class AddAuthorCommandHandler : IRequestHandler<AddAuthorCommand, Author>
     {
-        private readonly MockDatabase mockDatabase;
+        private readonly IAuthorRepository _authorRepository;
 
-        public AddAuthorCommandHandler(MockDatabase mockDatabase)
+        public AddAuthorCommandHandler(IAuthorRepository authorRepository)
         {
-            this.mockDatabase = mockDatabase;
+            _authorRepository = authorRepository;
         }
 
-        public Task<Author> Handle(AddAuthorCommand request, CancellationToken cancellationToken)
+        public async Task<Author> Handle(AddAuthorCommand request, CancellationToken cancellationToken)
         {
             if (request == null)
             {
@@ -25,16 +25,7 @@ namespace SheWolf.Application.Commands.Authors.AddAuthor
                 throw new ArgumentNullException(nameof(request.NewAuthor), "NewAuthor cannot be null.");
             }
 
-            Author authorToCreate = new()
-            {
-                Id = Guid.NewGuid(),
-                Name = request.NewAuthor.Name,
-                Books = new List<Book>()
-            };
-
-            mockDatabase.authors.Add(authorToCreate);
-
-            return Task.FromResult(authorToCreate);
+            return await _authorRepository.AddAuthor(request.NewAuthor);
         }
     }
 }

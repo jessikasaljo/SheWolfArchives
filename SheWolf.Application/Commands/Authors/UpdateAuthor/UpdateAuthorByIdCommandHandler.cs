@@ -1,19 +1,19 @@
 ﻿using MediatR;
 using SheWolf.Domain.Entities;
-using SheWolf.Infrastructure.Database;
+using SheWolf.Application.Interfaces.RepositoryInterfaces;
 
 namespace SheWolf.Application.Commands.Authors.UpdateAuthor
 {
     public class UpdateAuthorByIdCommandHandler : IRequestHandler<UpdateAuthorByIdCommand, Author>
     {
-        private readonly MockDatabase mockDatabase;
+        private readonly IAuthorRepository _authorRepository;
 
-        public UpdateAuthorByIdCommandHandler(MockDatabase mockDatabase)
+        public UpdateAuthorByIdCommandHandler(IAuthorRepository authorRepository)
         {
-            this.mockDatabase = mockDatabase;
+            _authorRepository = authorRepository;
         }
 
-        public Task<Author> Handle(UpdateAuthorByIdCommand request, CancellationToken cancellationToken)
+        public async Task<Author> Handle(UpdateAuthorByIdCommand request, CancellationToken cancellationToken)
         {
             if (request == null)
             {
@@ -25,16 +25,19 @@ namespace SheWolf.Application.Commands.Authors.UpdateAuthor
                 throw new ArgumentNullException(nameof(request.UpdatedAuthor), "UpdatedAuthor cannot be null.");
             }
 
-            var authorToUpdate = mockDatabase.authors.FirstOrDefault(author => author.Id == request.Id);
-
-            if (authorToUpdate == null)
+            if (request.Id == Guid.Empty)
             {
-                throw new InvalidOperationException($"No author found with Id: {request.Id}");
+                throw new ArgumentException("Author ID cannot be an empty GUID.");
             }
 
-            authorToUpdate.Name = request.UpdatedAuthor.Name;
+            var updatedAuthor = await _authorRepository.UpdateAuthor(request.Id, request.UpdatedAuthor);
 
-            return Task.FromResult(authorToUpdate);
+            if (updatedAuthor == null)
+            {
+                throw new InvalidOperationException($"Failed to update author. No author found with Id: {request.Id}");
+            }
+
+            return updatedAuthor;
         }
     }
 }

@@ -14,11 +14,11 @@ namespace SheWolf.API.Controllers
     [Route("[controller]")]
     public class AuthorController : Controller
     {
-        internal readonly IMediator mediator;
+        internal readonly IMediator _mediator;
 
         public AuthorController(IMediator mediator)
         {
-            this.mediator = mediator;
+            _mediator = mediator;
         }
 
         [Authorize]
@@ -33,7 +33,7 @@ namespace SheWolf.API.Controllers
 
             try
             {
-                var result = await mediator.Send(new AddAuthorCommand(authorToAdd));
+                var result = await _mediator.Send(new AddAuthorCommand(authorToAdd));
                 return CreatedAtAction(nameof(GetAuthorsById), new { authorId = result.Id }, result);
             }
             catch (Exception ex)
@@ -48,7 +48,7 @@ namespace SheWolf.API.Controllers
         {
             try
             {
-                var authors = await mediator.Send(new GetAllAuthorsQuery());
+                var authors = await _mediator.Send(new GetAllAuthorsQuery());
                 return Ok(authors);
             }
             catch (Exception ex)
@@ -63,7 +63,7 @@ namespace SheWolf.API.Controllers
         {
             try
             {
-                var author = await mediator.Send(new GetAuthorByIdQuery(authorId));
+                var author = await _mediator.Send(new GetAuthorByIdQuery(authorId));
                 if (author == null)
                 {
                     return NotFound(new { Message = "Author not found." });
@@ -89,7 +89,7 @@ namespace SheWolf.API.Controllers
 
             try
             {
-                var result = await mediator.Send(new UpdateAuthorByIdCommand(updatedAuthor, updatedAuthorId));
+                var result = await _mediator.Send(new UpdateAuthorByIdCommand(updatedAuthor, updatedAuthorId));
                 return Ok(result);
             }
             catch (Exception ex)
@@ -105,7 +105,7 @@ namespace SheWolf.API.Controllers
         {
             try
             {
-                var result = await mediator.Send(new DeleteAuthorByIdCommand(authorToDeleteId));
+                var result = await _mediator.Send(new DeleteAuthorByIdCommand(authorToDeleteId));
                 return Ok(result);
             }
             catch (Exception ex)

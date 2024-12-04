@@ -1,6 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using SheWolf.Application.Interfaces.RepositoryInterfaces;
 using SheWolf.Infrastructure.Database;
+using SheWolf.Infrastructure.Repository;
 
 namespace SheWolf.Infrastructure
 {
@@ -14,6 +16,8 @@ namespace SheWolf.Infrastructure
             {
                 options.UseSqlServer(connectionString);
             });
+
+            services.AddScoped<IAuthorRepository, AuthorRepository>();
 
             return services;
         }
