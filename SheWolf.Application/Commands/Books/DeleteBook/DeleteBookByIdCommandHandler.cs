@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using SheWolf.Domain.Entities;
 using SheWolf.Application.Interfaces.RepositoryInterfaces;
+using SheWolf.Application.Commands.Books.DeleteBook;
 
 namespace SheWolf.Application.Commands.Books.DeleteBook
 {
@@ -29,10 +30,10 @@ namespace SheWolf.Application.Commands.Books.DeleteBook
 
             if (deletedBook == null)
             {
-                return OperationResult<string>.Failure($"Failed to delete book with ID {request.Id}. Book not found.");
+                return OperationResult<string>.Failure($"No book found with ID {request.Id}.");
             }
 
-            return OperationResult<string>.Successful("Book deleted successfully.");
+            return OperationResult<string>.Successful("Successfully deleted book.");
         }
     }
 }

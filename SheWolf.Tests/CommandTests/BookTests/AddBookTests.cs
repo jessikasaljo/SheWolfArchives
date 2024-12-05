@@ -41,15 +41,18 @@ namespace SheWolf.Tests.CommandTests.BookTests
         }
 
         [Fact]
-        public async Task Handle_ShouldThrowException_WhenNewBookIsNull()
+        public async Task Handle_ShouldReturnFailure_WhenNewBookIsNull()
         {
             using var database = CreateInMemoryDatabase();
             var bookRepository = new BookRepository(database);
             var handler = new AddBookCommandHandler(bookRepository);
 
-            AddBookCommand command = new(null);
-            var exception = await Assert.ThrowsAsync<ArgumentNullException>(() => handler.Handle(command, CancellationToken.None));
-            Assert.Equal("NewBook", exception.ParamName);
+            var command = new AddBookCommand(null!);
+
+            var result = await handler.Handle(command, CancellationToken.None);
+
+            Assert.False(result.Success);
+            Assert.Equal("NewBook cannot be null.", result.ErrorMessage);
         }
 
         [Fact]

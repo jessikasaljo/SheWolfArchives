@@ -66,7 +66,7 @@ namespace SheWolf.Tests.CommandTests.AuthorTests
         }
 
         [Fact]
-        public async Task Handle_ShouldThrowException_WhenNewAuthorIsNull()
+        public async Task Handle_ShouldReturnFailure_WhenNewAuthorIsNull()
         {
             using var database = CreateInMemoryDatabase();
             var authorRepository = new AuthorRepository(database);
@@ -74,9 +74,10 @@ namespace SheWolf.Tests.CommandTests.AuthorTests
 
             var command = new AddAuthorCommand(null!);
 
-            var exception = await Assert.ThrowsAsync<ArgumentNullException>(() => handler.Handle(command, CancellationToken.None));
+            var result = await handler.Handle(command, CancellationToken.None);
 
-            Assert.Equal("NewAuthor", exception.ParamName);
+            Assert.False(result.Success);
+            Assert.Equal("NewAuthor cannot be null.", result.ErrorMessage);
         }
     }
 }

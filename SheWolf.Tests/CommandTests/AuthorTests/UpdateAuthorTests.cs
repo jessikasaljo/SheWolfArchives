@@ -3,6 +3,7 @@ using SheWolf.Application.Commands.Authors.UpdateAuthor;
 using SheWolf.Domain.Entities;
 using SheWolf.Infrastructure.Database;
 using SheWolf.Infrastructure.Repositories;
+using Xunit;
 
 namespace SheWolf.Tests.CommandTests.AuthorTests
 {
@@ -39,21 +40,23 @@ namespace SheWolf.Tests.CommandTests.AuthorTests
         }
 
         [Fact]
-        public async Task Handle_ShouldThrowException_WhenAuthorDoesNotExist()
+        public async Task Handle_ShouldReturnFailure_WhenAuthorDoesNotExist()
         {
             using var database = CreateInMemoryDatabase();
             var authorRepository = new AuthorRepository(database);
             var handler = new UpdateAuthorByIdCommandHandler(authorRepository);
 
             var updatedAuthor = new Author { Name = "Updated Name" };
-            var command = new UpdateAuthorByIdCommand(updatedAuthor, Guid.NewGuid());
+            var command = new UpdateAuthorByIdCommand(updatedAuthor, Guid.NewGuid());  // Non-existent ID
 
-            var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => handler.Handle(command, CancellationToken.None));
-            Assert.Equal("Failed to update author. No author found with Id: " + command.Id, exception.Message);
+            var result = await handler.Handle(command, CancellationToken.None);
+
+            Assert.False(result.Success);
+            Assert.Equal("Failed to update author. No author found with Id: " + command.Id, result.ErrorMessage);
         }
 
         [Fact]
-        public async Task Handle_ShouldThrowException_WhenUpdatedAuthorIsNull()
+        public async Task Handle_ShouldReturnFailure_WhenUpdatedAuthorIsNull()
         {
             using var database = CreateInMemoryDatabase();
             var authorRepository = new AuthorRepository(database);
@@ -61,7 +64,10 @@ namespace SheWolf.Tests.CommandTests.AuthorTests
 
             var command = new UpdateAuthorByIdCommand(null!, Guid.NewGuid());
 
-            await Assert.ThrowsAsync<ArgumentNullException>(() => handler.Handle(command, CancellationToken.None));
+            var result = await handler.Handle(command, CancellationToken.None);
+
+            Assert.False(result.Success);
+            Assert.Equal("UpdatedAuthor cannot be null.", result.ErrorMessage);
         }
     }
 }
