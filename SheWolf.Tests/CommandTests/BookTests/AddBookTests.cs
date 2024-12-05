@@ -1,16 +1,28 @@
-﻿using SheWolf.Application.Commands.Books.AddBook;
+﻿using Microsoft.EntityFrameworkCore;
+using SheWolf.Application.Commands.Books.AddBook;
 using SheWolf.Domain.Entities;
 using SheWolf.Infrastructure.Database;
+using SheWolf.Infrastructure.Repositories;
 
 namespace SheWolf.Tests.CommandTests.BookTests
 {
     public class AddBookTests
     {
+        private SheWolf_Database CreateInMemoryDatabase()
+        {
+            var options = new DbContextOptionsBuilder<SheWolf_Database>()
+                .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+                .Options;
+
+            return new SheWolf_Database(options);
+        }
+
         [Fact]
         public async Task Handle_ShouldAddBookToDatabase()
         {
-            var mockDatabase = new MockDatabase();
-            var handler = new AddBookCommandHandler(mockDatabase);
+            using var database = CreateInMemoryDatabase();
+            var bookRepository = new BookRepository(database);
+            var handler = new AddBookCommandHandler(bookRepository);
 
             var newBook = new Book
             {
@@ -18,23 +30,24 @@ namespace SheWolf.Tests.CommandTests.BookTests
             };
 
             var command = new AddBookCommand(newBook);
-
             var result = await handler.Handle(command, CancellationToken.None);
 
             Assert.NotNull(result);
             Assert.Equal(newBook.Title, result.Title);
             Assert.NotEqual(Guid.Empty, result.Id);
-            Assert.Contains(result, mockDatabase.books);
+
+            var booksInDatabase = await database.Books.ToListAsync();
+            Assert.Contains(booksInDatabase, book => book.Title == newBook.Title);
         }
 
         [Fact]
         public async Task Handle_ShouldThrowException_WhenNewBookIsNull()
         {
-            var mockDatabase = new MockDatabase();
-            var handler = new AddBookCommandHandler(mockDatabase);
+            using var database = CreateInMemoryDatabase();
+            var bookRepository = new BookRepository(database);
+            var handler = new AddBookCommandHandler(bookRepository);
 
             AddBookCommand command = new(null);
-
             var exception = await Assert.ThrowsAsync<ArgumentNullException>(() => handler.Handle(command, CancellationToken.None));
             Assert.Equal("NewBook", exception.ParamName);
         }
@@ -42,11 +55,12 @@ namespace SheWolf.Tests.CommandTests.BookTests
         [Fact]
         public async Task Handle_ShouldCreateBookWithUniqueId()
         {
-            var mockDatabase = new MockDatabase();
-            var handler = new AddBookCommandHandler(mockDatabase);
+            using var database = CreateInMemoryDatabase();
+            var bookRepository = new BookRepository(database);
+            var handler = new AddBookCommandHandler(bookRepository);
 
             var newBook1 = new Book { Title = "The Idiot" };
-            var newBook2 = new Book { Title = "You exist too much" };
+            var newBook2 = new Book { Title = "You Exist Too Much" };
 
             var command1 = new AddBookCommand(newBook1);
             var command2 = new AddBookCommand(newBook2);

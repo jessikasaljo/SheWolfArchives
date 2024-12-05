@@ -1,50 +1,64 @@
-﻿using SheWolf.Application.Commands.Authors.DeleteAuthor;
+﻿using Microsoft.EntityFrameworkCore;
+using SheWolf.Application.Commands.Authors.DeleteAuthor;
 using SheWolf.Domain.Entities;
 using SheWolf.Infrastructure.Database;
+using SheWolf.Infrastructure.Repositories;
 
 namespace SheWolf.Tests.CommandTests.AuthorTests
 {
     public class DeleteAuthorTests
     {
+        private SheWolf_Database CreateInMemoryDatabase()
+        {
+            var options = new DbContextOptionsBuilder<SheWolf_Database>()
+                .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+                .Options;
+
+            return new SheWolf_Database(options);
+        }
+
         [Fact]
         public async Task Handle_ShouldDeleteAuthorFromDatabase_WhenAuthorExists()
         {
-            var mockDatabase = new MockDatabase();
+            using var database = CreateInMemoryDatabase();
+            var authorRepository = new AuthorRepository(database);
+            var handler = new DeleteAuthorByIdCommandHandler(authorRepository);
+
             var existingAuthor = new Author { Id = Guid.NewGuid(), Name = "Author To Delete" };
-            mockDatabase.authors.Add(existingAuthor);
-            var handler = new DeleteAuthorByIdCommandHandler(mockDatabase);
+            database.Authors.Add(existingAuthor);
+            await database.SaveChangesAsync();
 
             var command = new DeleteAuthorByIdCommand(existingAuthor.Id);
 
             var result = await handler.Handle(command, CancellationToken.None);
 
-            Assert.NotNull(result);
-            Assert.Equal(existingAuthor.Id, result.Id);
-            Assert.Equal(existingAuthor.Name, result.Name);
-            Assert.DoesNotContain(result, mockDatabase.authors);
+            Assert.Equal("Successfully deleted author", result);
+            Assert.DoesNotContain(existingAuthor, database.Authors);
         }
 
         [Fact]
-        public async Task Handle_ShouldReturnNull_WhenAuthorDoesNotExist()
+        public async Task Handle_ShouldReturnFailureMessage_WhenAuthorDoesNotExist()
         {
-            var mockDatabase = new MockDatabase();
-            var handler = new DeleteAuthorByIdCommandHandler(mockDatabase);
+            using var database = CreateInMemoryDatabase();
+            var authorRepository = new AuthorRepository(database);
+            var handler = new DeleteAuthorByIdCommandHandler(authorRepository);
 
             var nonExistentAuthorId = Guid.NewGuid();
             var command = new DeleteAuthorByIdCommand(nonExistentAuthorId);
 
             var result = await handler.Handle(command, CancellationToken.None);
 
-            Assert.Null(result);
+            Assert.Equal("Failed to delete author", result);
         }
 
         [Fact]
         public async Task Handle_ShouldThrowException_WhenRequestIsNull()
         {
-            var mockDatabase = new MockDatabase();
-            var handler = new DeleteAuthorByIdCommandHandler(mockDatabase);
+            using var database = CreateInMemoryDatabase();
+            var authorRepository = new AuthorRepository(database);
+            var handler = new DeleteAuthorByIdCommandHandler(authorRepository);
 
-            await Assert.ThrowsAsync<ArgumentNullException>(() => handler.Handle(null, CancellationToken.None));
+            await Assert.ThrowsAsync<ArgumentNullException>(() => handler.Handle(null!, CancellationToken.None));
         }
     }
 }

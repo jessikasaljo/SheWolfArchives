@@ -1,49 +1,73 @@
-﻿using SheWolf.Application.Commands.Books.UpdateBook;
+﻿using Microsoft.EntityFrameworkCore;
+using SheWolf.Application.Commands.Books.UpdateBook;
 using SheWolf.Domain.Entities;
 using SheWolf.Infrastructure.Database;
+using SheWolf.Infrastructure.Repositories;
+using Xunit;
 
 namespace SheWolf.Tests.CommandTests.BookTests
 {
     public class UpdateBookTests
     {
+        private SheWolf_Database CreateInMemoryDatabase()
+        {
+            var options = new DbContextOptionsBuilder<SheWolf_Database>()
+                .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+                .Options;
+
+            return new SheWolf_Database(options);
+        }
+
         [Fact]
         public async Task Handle_ShouldUpdateBookTitle_WhenBookExists()
         {
-            var mockDatabase = new MockDatabase();
-            var existingBook = new Book { Title = "Old Title" };
-            mockDatabase.books.Add(existingBook);
+            using var database = CreateInMemoryDatabase();
+            var bookRepository = new BookRepository(database);
+            var handler = new UpdateBookByIdCommandHandler(bookRepository);
 
-            var handler = new UpdateBookByIdCommandHandler(mockDatabase);
+            var existingBook = new Book { Id = Guid.NewGuid(), Title = "Old Title" };
+            database.Books.Add(existingBook);
+            await database.SaveChangesAsync();
+
             var command = new UpdateBookByIdCommand(new Book { Title = "New Title" }, existingBook.Id);
 
             var updatedBook = await handler.Handle(command, CancellationToken.None);
 
             Assert.NotNull(updatedBook);
             Assert.Equal("New Title", updatedBook.Title);
+
+            var bookInDatabase = await database.Books.FindAsync(existingBook.Id);
+            Assert.NotNull(bookInDatabase);
+            Assert.Equal("New Title", bookInDatabase.Title);
         }
 
         [Fact]
-        public async Task Handle_ShouldReturnNull_WhenBookDoesNotExist()
+        public async Task Handle_ShouldThrowException_WhenBookDoesNotExist()
         {
-            var mockDatabase = new MockDatabase();
-            var nonExistentBookId = Guid.NewGuid();
+            using var database = CreateInMemoryDatabase();
+            var bookRepository = new BookRepository(database);
+            var handler = new UpdateBookByIdCommandHandler(bookRepository);
 
-            var handler = new UpdateBookByIdCommandHandler(mockDatabase);
+            var nonExistentBookId = Guid.NewGuid();
             var command = new UpdateBookByIdCommand(new Book { Title = "New Title" }, nonExistentBookId);
 
-            var result = await handler.Handle(command, CancellationToken.None);
+            var exception = await Assert.ThrowsAsync<InvalidOperationException>(
+                () => handler.Handle(command, CancellationToken.None)
+            );
 
-            Assert.Null(result);
+            Assert.Equal($"Failed to update book. No book found with Id: {nonExistentBookId}", exception.Message);
         }
 
         [Fact]
         public async Task Handle_ShouldThrowException_WhenUpdatedBookIsNull()
         {
-            var mockDatabase = new MockDatabase();
-            var existingBook = new Book { Title = "Old Title" };
-            mockDatabase.books.Add(existingBook);
+            using var database = CreateInMemoryDatabase();
+            var bookRepository = new BookRepository(database);
+            var handler = new UpdateBookByIdCommandHandler(bookRepository);
 
-            var handler = new UpdateBookByIdCommandHandler(mockDatabase);
+            var existingBook = new Book { Id = Guid.NewGuid(), Title = "Old Title" };
+            database.Books.Add(existingBook);
+            await database.SaveChangesAsync();
 
             var exception = await Assert.ThrowsAsync<ArgumentNullException>(
                 () => handler.Handle(new UpdateBookByIdCommand(null!, existingBook.Id), CancellationToken.None)
@@ -55,8 +79,9 @@ namespace SheWolf.Tests.CommandTests.BookTests
         [Fact]
         public async Task Handle_ShouldThrowException_WhenRequestIsNull()
         {
-            var mockDatabase = new MockDatabase();
-            var handler = new UpdateBookByIdCommandHandler(mockDatabase);
+            using var database = CreateInMemoryDatabase();
+            var bookRepository = new BookRepository(database);
+            var handler = new UpdateBookByIdCommandHandler(bookRepository);
 
             var exception = await Assert.ThrowsAsync<ArgumentNullException>(
                 () => handler.Handle(null!, CancellationToken.None)

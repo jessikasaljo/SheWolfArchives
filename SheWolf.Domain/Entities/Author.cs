@@ -8,7 +8,7 @@ namespace SheWolf.Domain.Entities
         [StringLength(50)]
         public string Name { get; set; }
 
-        public ICollection<Book> Books { get; set; }
+        public ICollection<Book> Books { get; set; } = new List<Book>();
 
         public Author(string name, ICollection<Book> books)
         {
