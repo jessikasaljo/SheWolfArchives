@@ -1,57 +1,69 @@
-﻿using SheWolf.Application.Commands.Books.DeleteBook;
+﻿using Microsoft.EntityFrameworkCore;
+using SheWolf.Application.Commands.Books.DeleteBook;
 using SheWolf.Domain.Entities;
 using SheWolf.Infrastructure.Database;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using SheWolf.Infrastructure.Repositories;
+using Xunit;
 
 namespace SheWolf.Tests.CommandTests.BookTests
 {
     public class DeleteBookTests
     {
+        private SheWolf_Database CreateInMemoryDatabase()
+        {
+            var options = new DbContextOptionsBuilder<SheWolf_Database>()
+                .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+                .Options;
+
+            return new SheWolf_Database(options);
+        }
+
         [Fact]
         public async Task Handle_ShouldRemoveBookFromDatabase_WhenBookExists()
         {
-            var mockDatabase = new MockDatabase();
-            var handler = new DeleteBookByIdCommandHandler(mockDatabase);
+            using var database = CreateInMemoryDatabase();
+            var bookRepository = new BookRepository(database);
+            var handler = new DeleteBookByIdCommandHandler(bookRepository);
 
             var existingBook = new Book
             {
                 Id = Guid.NewGuid(),
                 Title = "How to date men when you hate men"
             };
-            mockDatabase.books.Add(existingBook);
+
+            database.Books.Add(existingBook);
+            await database.SaveChangesAsync();
 
             var command = new DeleteBookByIdCommand(existingBook.Id);
 
             var result = await handler.Handle(command, CancellationToken.None);
 
-            Assert.NotNull(result);
-            Assert.Equal(existingBook.Id, result.Id);
-            Assert.DoesNotContain(result, mockDatabase.books);
+            Assert.Equal("Successfully deleted book", result);
+            var booksInDatabase = await database.Books.ToListAsync();
+            Assert.DoesNotContain(booksInDatabase, book => book.Id == existingBook.Id);
         }
 
         [Fact]
-        public async Task Handle_ShouldReturnNull_WhenBookDoesNotExist()
+        public async Task Handle_ShouldReturnFailureMessage_WhenBookDoesNotExist()
         {
-            var mockDatabase = new MockDatabase();
-            var handler = new DeleteBookByIdCommandHandler(mockDatabase);
+            using var database = CreateInMemoryDatabase();
+            var bookRepository = new BookRepository(database);
+            var handler = new DeleteBookByIdCommandHandler(bookRepository);
 
             var nonExistentBookId = Guid.NewGuid();
             var command = new DeleteBookByIdCommand(nonExistentBookId);
 
             var result = await handler.Handle(command, CancellationToken.None);
 
-            Assert.Null(result);
+            Assert.Equal("Failed to delete book", result);
         }
 
         [Fact]
         public async Task Handle_ShouldThrowException_WhenRequestIsNull()
         {
-            var mockDatabase = new MockDatabase();
-            var handler = new DeleteBookByIdCommandHandler(mockDatabase);
+            using var database = CreateInMemoryDatabase();
+            var bookRepository = new BookRepository(database);
+            var handler = new DeleteBookByIdCommandHandler(bookRepository);
 
             await Assert.ThrowsAsync<ArgumentNullException>(() => handler.Handle(null, CancellationToken.None));
         }

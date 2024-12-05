@@ -1,26 +1,26 @@
-﻿using SheWolf.Domain.Entities;
-using SheWolf.Infrastructure.Database;
+﻿using SheWolf.Application.Interfaces.RepositoryInterfaces;
+using SheWolf.Domain.Entities;
 
 namespace SheWolf.Application.Queries.Users.GetAll
 {
     public class GetAllUsersQueryHandler
     {
-        private readonly MockDatabase mockDatabase;
+        private readonly IUserRepository _userRepository;
 
-        public GetAllUsersQueryHandler(MockDatabase mockDatabase)
+        public GetAllUsersQueryHandler(IUserRepository userRepository)
         {
-            this.mockDatabase = mockDatabase;
+            _userRepository = userRepository;
         }
-        public Task<List<User>> Handle(GetAllUsersQuery request, CancellationToken cancellationToken)
+        public async Task<List<User>> Handle(GetAllUsersQuery request, CancellationToken cancellationToken)
         {
-            List<User> allUsersFromMockDatabase = mockDatabase.users;
+            List<User> allUsers = await _userRepository.GetAllUsers();
 
-            if (allUsersFromMockDatabase == null || !allUsersFromMockDatabase.Any())
+            if (allUsers == null || !allUsers.Any())
             {
                 throw new ArgumentException("Userlist is empty or null");
             }
 
-            return Task.FromResult(allUsersFromMockDatabase);
+            return allUsers;
         }
     }
 }

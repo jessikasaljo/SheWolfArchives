@@ -1,36 +1,31 @@
 ﻿using MediatR;
+using SheWolf.Application.Interfaces.RepositoryInterfaces;
 using SheWolf.Domain.Entities;
-using SheWolf.Infrastructure.Database;
 
 namespace SheWolf.Application.Commands.Users.AddUser
 {
     public class AddUserCommandHandler : IRequestHandler<AddUserCommand, User>
     {
-        private readonly MockDatabase mockDatabase;
+        private readonly IUserRepository _userRepository;
 
-        public AddUserCommandHandler(MockDatabase mockDatabase)
+        public AddUserCommandHandler(IUserRepository userRepository)
         {
-            this.mockDatabase = mockDatabase;
+            _userRepository = userRepository;
         }
-        public Task<User> Handle(AddUserCommand request, CancellationToken cancellationToken)
+
+        public async Task<User> Handle(AddUserCommand request, CancellationToken cancellationToken)
         {
-            if (request == null || request.NewUser == null ||
-              string.IsNullOrWhiteSpace(request.NewUser.Username) ||
-              string.IsNullOrWhiteSpace(request.NewUser.Password))
+            if (request == null)
             {
-                throw new ArgumentException("Author name and description cannot be empty or null");
+                throw new ArgumentNullException(nameof(request), "AddUserCommand cannot be null.");
             }
 
-            User userToCreate = new()
+            if (request.NewUser == null)
             {
-                Id = Guid.NewGuid(),
-                Username = request.NewUser.Username,
-                Password = request.NewUser.Password,
-            };
+                throw new ArgumentNullException(nameof(request.NewUser), "NewUser cannot be null.");
+            }
 
-            mockDatabase.users.Add(userToCreate);
-
-            return Task.FromResult(userToCreate);
+            return await _userRepository.AddUser(request.NewUser);
         }
     }
 }

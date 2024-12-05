@@ -1,20 +1,19 @@
 ﻿using MediatR;
-using SheWolf.Application.Commands.Authors.UpdateAuthor;
 using SheWolf.Domain.Entities;
-using SheWolf.Infrastructure.Database;
+using SheWolf.Application.Interfaces.RepositoryInterfaces;
 
 namespace SheWolf.Application.Commands.Books.UpdateBook
 {
     public class UpdateBookByIdCommandHandler : IRequestHandler<UpdateBookByIdCommand, Book>
     {
-        private readonly MockDatabase mockDatabase;
+        private readonly IBookRepository _bookRepository;
 
-        public UpdateBookByIdCommandHandler(MockDatabase mockDatabase)
+        public UpdateBookByIdCommandHandler(IBookRepository bookRepository)
         {
-            this.mockDatabase = mockDatabase;
+            _bookRepository = bookRepository;
         }
 
-        public Task<Book> Handle(UpdateBookByIdCommand request, CancellationToken cancellationToken)
+        public async Task<Book> Handle(UpdateBookByIdCommand request, CancellationToken cancellationToken)
         {
             if (request == null)
             {
@@ -26,16 +25,19 @@ namespace SheWolf.Application.Commands.Books.UpdateBook
                 throw new ArgumentNullException(nameof(request.UpdatedBook), "UpdatedBook cannot be null.");
             }
 
-            Book bookToUpdate = mockDatabase.books.FirstOrDefault(book => book.Id == request.Id)!;
-
-            if (bookToUpdate == null)
+            if (request.Id == Guid.Empty)
             {
-                return Task.FromResult<Book>(null!);
+                throw new ArgumentException("Book ID cannot be an empty GUID.");
             }
 
-            bookToUpdate.Title = request.UpdatedBook.Title;
+            var updatedBook = await _bookRepository.UpdateBook(request.Id, request.UpdatedBook);
 
-            return Task.FromResult(bookToUpdate);
+            if (updatedBook == null)
+            {
+                throw new InvalidOperationException($"Failed to update book. No book found with Id: {request.Id}");
+            }
+
+            return updatedBook;
         }
     }
 }

@@ -17,6 +17,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\SheWolf.Application\SheWolf.Application.csproj" />
+    <ProjectReference Include="..\SheWolf.Infrastructure\SheWolf.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

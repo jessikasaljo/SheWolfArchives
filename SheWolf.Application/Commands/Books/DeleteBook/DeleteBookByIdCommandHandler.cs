@@ -1,41 +1,33 @@
 ﻿using MediatR;
-using SheWolf.Application.Commands.Authors.DeleteAuthor;
 using SheWolf.Domain.Entities;
-using SheWolf.Infrastructure.Database;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using SheWolf.Application.Interfaces.RepositoryInterfaces;
 
 namespace SheWolf.Application.Commands.Books.DeleteBook
 {
-    public class DeleteBookByIdCommandHandler : IRequestHandler<DeleteBookByIdCommand, Book>
+    public class DeleteBookByIdCommandHandler : IRequestHandler<DeleteBookByIdCommand, string>
     {
-        private readonly MockDatabase mockDatabase;
+        private readonly IBookRepository _bookRepository;
 
-        public DeleteBookByIdCommandHandler(MockDatabase mockDatabase)
+        public DeleteBookByIdCommandHandler(IBookRepository bookRepository)
         {
-            this.mockDatabase = mockDatabase;
+            _bookRepository = bookRepository;
         }
 
-        public Task<Book> Handle(DeleteBookByIdCommand request, CancellationToken cancellationToken)
+        public async Task<string> Handle(DeleteBookByIdCommand request, CancellationToken cancellationToken)
         {
             if (request == null)
             {
                 throw new ArgumentNullException(nameof(request), "DeleteBookByIdCommand cannot be null.");
             }
 
-            Book? bookToDelete = mockDatabase.books.FirstOrDefault(book => book.Id == request.Id);
-
-            if (bookToDelete == null)
+            if (request.Id == Guid.Empty)
             {
-                return Task.FromResult<Book>(null!);
+                throw new ArgumentException("Book ID cannot be an empty GUID.");
             }
 
-            mockDatabase.books.Remove(bookToDelete);
+            var deletedBook = await _bookRepository.DeleteBookById(request.Id);
 
-            return Task.FromResult(bookToDelete);
+            return deletedBook;
         }
     }
 }

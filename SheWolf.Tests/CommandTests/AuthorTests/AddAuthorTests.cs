@@ -1,16 +1,28 @@
+using Microsoft.EntityFrameworkCore;
 using SheWolf.Application.Commands.Authors.AddAuthor;
 using SheWolf.Domain.Entities;
 using SheWolf.Infrastructure.Database;
+using SheWolf.Infrastructure.Repositories;
 
 namespace SheWolf.Tests.CommandTests.AuthorTests
 {
     public class AddAuthorTests
     {
+        private SheWolf_Database CreateInMemoryDatabase()
+        {
+            var options = new DbContextOptionsBuilder<SheWolf_Database>()
+                .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+                .Options;
+
+            return new SheWolf_Database(options);
+        }
+
         [Fact]
         public async Task Handle_ShouldAddAuthorToDatabase()
         {
-            var mockDatabase = new MockDatabase();
-            var handler = new AddAuthorCommandHandler(mockDatabase);
+            using var database = CreateInMemoryDatabase();
+            var authorRepository = new AuthorRepository(database);
+            var handler = new AddAuthorCommandHandler(authorRepository);
 
             var newAuthor = new Author
             {
@@ -24,14 +36,17 @@ namespace SheWolf.Tests.CommandTests.AuthorTests
             Assert.NotNull(result);
             Assert.Equal(newAuthor.Name, result.Name);
             Assert.NotEqual(Guid.Empty, result.Id);
-            Assert.Contains(result, mockDatabase.authors);
+
+            var authorsInDatabase = await database.Authors.ToListAsync();
+            Assert.Contains(authorsInDatabase, a => a.Id == result.Id);
         }
 
         [Fact]
         public async Task Handle_ShouldCreateAuthorWithEmptyBooksList()
         {
-            var mockDatabase = new MockDatabase();
-            var handler = new AddAuthorCommandHandler(mockDatabase);
+            using var database = CreateInMemoryDatabase();
+            var authorRepository = new AuthorRepository(database);
+            var handler = new AddAuthorCommandHandler(authorRepository);
 
             var newAuthor = new Author
             {
@@ -44,17 +59,23 @@ namespace SheWolf.Tests.CommandTests.AuthorTests
 
             Assert.NotNull(result);
             Assert.Empty(result.Books);
+
+            var authorInDatabase = await database.Authors.FindAsync(result.Id);
+            Assert.NotNull(authorInDatabase);
+            Assert.Empty(authorInDatabase.Books);
         }
 
         [Fact]
         public async Task Handle_ShouldThrowException_WhenNewAuthorIsNull()
         {
-            var mockDatabase = new MockDatabase();
-            var handler = new AddAuthorCommandHandler(mockDatabase);
+            using var database = CreateInMemoryDatabase();
+            var authorRepository = new AuthorRepository(database);
+            var handler = new AddAuthorCommandHandler(authorRepository);
 
-            AddAuthorCommand command = new(null);
+            var command = new AddAuthorCommand(null!);
 
             var exception = await Assert.ThrowsAsync<ArgumentNullException>(() => handler.Handle(command, CancellationToken.None));
+
             Assert.Equal("NewAuthor", exception.ParamName);
         }
     }

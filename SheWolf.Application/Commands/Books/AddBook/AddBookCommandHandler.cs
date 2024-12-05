@@ -1,19 +1,19 @@
 ﻿using MediatR;
+using SheWolf.Application.Interfaces.RepositoryInterfaces;
 using SheWolf.Domain.Entities;
-using SheWolf.Infrastructure.Database;
 
 namespace SheWolf.Application.Commands.Books.AddBook
 {
     public class AddBookCommandHandler : IRequestHandler<AddBookCommand, Book>
     {
-        private readonly MockDatabase mockDatabase;
+        private readonly IBookRepository _bookRepository;
 
-        public AddBookCommandHandler(MockDatabase mockDatabase)
+        public AddBookCommandHandler(IBookRepository bookRepository)
         {
-            this.mockDatabase = mockDatabase;
+            _bookRepository = bookRepository;
         }
 
-        public Task<Book> Handle(AddBookCommand request, CancellationToken cancellationToken)
+        public async Task<Book> Handle(AddBookCommand request, CancellationToken cancellationToken)
         {
             if (request == null)
             {
@@ -25,15 +25,7 @@ namespace SheWolf.Application.Commands.Books.AddBook
                 throw new ArgumentNullException(nameof(request.NewBook), "NewBook cannot be null.");
             }
 
-            Book bookToCreate = new()
-            {
-                Id = Guid.NewGuid(),
-                Title = request.NewBook.Title
-            };
-
-            mockDatabase.books.Add(bookToCreate);
-
-            return Task.FromResult(bookToCreate);
+            return await _bookRepository.AddBook(request.NewBook);
         }
     }
 }
