@@ -4,6 +4,8 @@ using SheWolf.Domain.Entities;
 using SheWolf.Application.Queries.Users.GetAll;
 using SheWolf.Application.Commands.Users.AddUser;
 using SheWolf.Application.Queries.Users.Login;
+using Microsoft.AspNetCore.Authorization;
+using SheWolf.Application.Queries.Users.GetById;
 
 namespace SheWolf.API.Controllers
 {
@@ -34,20 +36,57 @@ namespace SheWolf.API.Controllers
 
         }
 
+        [Authorize]
+        [HttpGet]
+        [Route("getUserById/{userId}")]
+        public async Task<IActionResult> GetUserById(Guid userId)
+        {
+            try
+            {
+                var result = await _mediator.Send(new GetUserByIdQuery(userId));
+
+                if (result.Success)
+                {
+                    return Ok(new { message = result.Message, data = result.Data });
+                }
+                else
+                {
+                    return BadRequest(new { message = result.Message, errorMessage = result.ErrorMessage });
+                }
+            }
+            catch (Exception ex)
+            {
+                return HandleError(ex);
+            }
+        }
+
+
         [HttpPost]
         [Route("Register")]
         public async Task<IActionResult> RegisterUser([FromBody] User userToAdd)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
             try
             {
-                var userToBeAdded = await _mediator.Send(new AddUserCommand(userToAdd));
-                return Ok();
+                var result = await _mediator.Send(new AddUserCommand(userToAdd));
+
+                if (result.Success)
+                {
+                    return CreatedAtAction(nameof(GetUserById), new { userId = result.Data.Id }, new { message = result.Message, data = result.Data });
+                }
+                else
+                {
+                    return BadRequest(new { message = result.Message, errorMessage = result.ErrorMessage });
+                }
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                return HandleError(ex);
             }
-
         }
 
         [HttpPost]
@@ -56,13 +95,27 @@ namespace SheWolf.API.Controllers
         {
             try
             {
-                var userToBeLoggedIn = await _mediator.Send(new LogInUserQuery(userToLogIn));
-                return Ok(userToBeLoggedIn);
+                var result = await _mediator.Send(new LogInUserQuery(userToLogIn.Username, userToLogIn.Password));
+
+                if (result.Success)
+                {
+                    return Ok(result.Data);
+                }
+                else
+                {
+                    return Unauthorized(result.Message);
+                }
             }
             catch (Exception ex)
             {
                 return BadRequest(ex.Message);
             }
+        }
+
+
+        private IActionResult HandleError(Exception ex)
+        {
+            return StatusCode(500, new { message = "An error occurred while processing your request.", details = ex.Message });
         }
     }
 }

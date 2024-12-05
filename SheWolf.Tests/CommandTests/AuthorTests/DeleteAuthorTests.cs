@@ -32,7 +32,7 @@ namespace SheWolf.Tests.CommandTests.AuthorTests
 
             var result = await handler.Handle(command, CancellationToken.None);
 
-            Assert.Equal("Successfully deleted author", result);
+            Assert.Equal("Successfully deleted author", result.Data);
             Assert.DoesNotContain(existingAuthor, database.Authors);
         }
 
@@ -48,7 +48,7 @@ namespace SheWolf.Tests.CommandTests.AuthorTests
 
             var result = await handler.Handle(command, CancellationToken.None);
 
-            Assert.Equal("Failed to delete author", result);
+            Assert.Equal("Failed to delete author", result.Data);
         }
 
         [Fact]

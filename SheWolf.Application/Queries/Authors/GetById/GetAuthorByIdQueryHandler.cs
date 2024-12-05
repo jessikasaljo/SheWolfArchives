@@ -4,7 +4,7 @@ using SheWolf.Application.Interfaces.RepositoryInterfaces;
 
 namespace SheWolf.Application.Queries.Authors.GetById
 {
-    public class GetAuthorByIdQueryHandler : IRequestHandler<GetAuthorByIdQuery, Author>
+    public class GetAuthorByIdQueryHandler : IRequestHandler<GetAuthorByIdQuery, OperationResult<Author>>
     {
         private readonly IAuthorRepository _authorRepository;
 
@@ -13,21 +13,21 @@ namespace SheWolf.Application.Queries.Authors.GetById
             _authorRepository = authorRepository;
         }
 
-        public async Task<Author> Handle(GetAuthorByIdQuery request, CancellationToken cancellationToken)
+        public async Task<OperationResult<Author>> Handle(GetAuthorByIdQuery request, CancellationToken cancellationToken)
         {
             if (request == null)
             {
-                throw new ArgumentNullException(nameof(request), "GetAuthorByIdQuery cannot be null.");
+                return OperationResult<Author>.Failure("GetAuthorByIdQuery cannot be null.");
             }
 
             Author wantedAuthor = await _authorRepository.GetAuthorById(request.Id);
 
             if (wantedAuthor == null)
             {
-                throw new InvalidOperationException($"Author with ID {request.Id} not found.");
+                return OperationResult<Author>.Failure($"Author with ID {request.Id} not found.");
             }
 
-            return wantedAuthor;
+            return OperationResult<Author>.Successful(wantedAuthor, "Author retrieved successfully.");
         }
     }
 }

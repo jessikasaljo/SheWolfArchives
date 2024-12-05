@@ -4,7 +4,7 @@ using SheWolf.Domain.Entities;
 
 namespace SheWolf.Application.Commands.Books.AddBook
 {
-    public class AddBookCommandHandler : IRequestHandler<AddBookCommand, Book>
+    public class AddBookCommandHandler : IRequestHandler<AddBookCommand, OperationResult<Book>>
     {
         private readonly IBookRepository _bookRepository;
 
@@ -13,19 +13,26 @@ namespace SheWolf.Application.Commands.Books.AddBook
             _bookRepository = bookRepository;
         }
 
-        public async Task<Book> Handle(AddBookCommand request, CancellationToken cancellationToken)
+        public async Task<OperationResult<Book>> Handle(AddBookCommand request, CancellationToken cancellationToken)
         {
             if (request == null)
             {
-                throw new ArgumentNullException(nameof(request), "AddBookCommand cannot be null.");
+                return OperationResult<Book>.Failure("AddBookCommand cannot be null.");
             }
 
             if (request.NewBook == null)
             {
-                throw new ArgumentNullException(nameof(request.NewBook), "NewBook cannot be null.");
+                return OperationResult<Book>.Failure("NewBook cannot be null.");
             }
 
-            return await _bookRepository.AddBook(request.NewBook);
+            var addedBook = await _bookRepository.AddBook(request.NewBook);
+
+            if (addedBook == null)
+            {
+                return OperationResult<Book>.Failure("Failed to add the book.");
+            }
+
+            return OperationResult<Book>.Successful(addedBook, "Book added successfully.");
         }
     }
 }

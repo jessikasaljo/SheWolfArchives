@@ -34,7 +34,7 @@ namespace SheWolf.Tests.CommandTests.BookTests
             var updatedBook = await handler.Handle(command, CancellationToken.None);
 
             Assert.NotNull(updatedBook);
-            Assert.Equal("New Title", updatedBook.Title);
+            Assert.Equal("New Title", updatedBook.Data.Title);
 
             var bookInDatabase = await database.Books.FindAsync(existingBook.Id);
             Assert.NotNull(bookInDatabase);

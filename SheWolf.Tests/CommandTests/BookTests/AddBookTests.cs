@@ -33,8 +33,8 @@ namespace SheWolf.Tests.CommandTests.BookTests
             var result = await handler.Handle(command, CancellationToken.None);
 
             Assert.NotNull(result);
-            Assert.Equal(newBook.Title, result.Title);
-            Assert.NotEqual(Guid.Empty, result.Id);
+            Assert.Equal(newBook.Title, result.Data.Title);
+            Assert.NotEqual(Guid.Empty, result.Data.Id);
 
             var booksInDatabase = await database.Books.ToListAsync();
             Assert.Contains(booksInDatabase, book => book.Title == newBook.Title);
@@ -68,7 +68,7 @@ namespace SheWolf.Tests.CommandTests.BookTests
             var result1 = await handler.Handle(command1, CancellationToken.None);
             var result2 = await handler.Handle(command2, CancellationToken.None);
 
-            Assert.NotEqual(result1.Id, result2.Id);
+            Assert.NotEqual(result1.Data.Id, result2.Data.Id);
         }
     }
 }

@@ -4,7 +4,7 @@ using SheWolf.Application.Interfaces.RepositoryInterfaces;
 
 namespace SheWolf.Application.Commands.Books.DeleteBook
 {
-    public class DeleteBookByIdCommandHandler : IRequestHandler<DeleteBookByIdCommand, string>
+    public class DeleteBookByIdCommandHandler : IRequestHandler<DeleteBookByIdCommand, OperationResult<string>>
     {
         private readonly IBookRepository _bookRepository;
 
@@ -13,21 +13,26 @@ namespace SheWolf.Application.Commands.Books.DeleteBook
             _bookRepository = bookRepository;
         }
 
-        public async Task<string> Handle(DeleteBookByIdCommand request, CancellationToken cancellationToken)
+        public async Task<OperationResult<string>> Handle(DeleteBookByIdCommand request, CancellationToken cancellationToken)
         {
             if (request == null)
             {
-                throw new ArgumentNullException(nameof(request), "DeleteBookByIdCommand cannot be null.");
+                return OperationResult<string>.Failure("DeleteBookByIdCommand cannot be null.");
             }
 
             if (request.Id == Guid.Empty)
             {
-                throw new ArgumentException("Book ID cannot be an empty GUID.");
+                return OperationResult<string>.Failure("Book ID cannot be an empty GUID.");
             }
 
             var deletedBook = await _bookRepository.DeleteBookById(request.Id);
 
-            return deletedBook;
+            if (deletedBook == null)
+            {
+                return OperationResult<string>.Failure($"Failed to delete book with ID {request.Id}. Book not found.");
+            }
+
+            return OperationResult<string>.Successful("Book deleted successfully.");
         }
     }
 }

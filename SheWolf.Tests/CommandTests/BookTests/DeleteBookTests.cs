@@ -38,7 +38,7 @@ namespace SheWolf.Tests.CommandTests.BookTests
 
             var result = await handler.Handle(command, CancellationToken.None);
 
-            Assert.Equal("Successfully deleted book", result);
+            Assert.Equal("Successfully deleted book", result.Data);
             var booksInDatabase = await database.Books.ToListAsync();
             Assert.DoesNotContain(booksInDatabase, book => book.Id == existingBook.Id);
         }
@@ -55,7 +55,7 @@ namespace SheWolf.Tests.CommandTests.BookTests
 
             var result = await handler.Handle(command, CancellationToken.None);
 
-            Assert.Equal("Failed to delete book", result);
+            Assert.Equal("Failed to delete book", result.Data);
         }
 
         [Fact]

@@ -34,8 +34,8 @@ namespace SheWolf.Tests.CommandTests.AuthorTests
             var result = await handler.Handle(command, CancellationToken.None);
 
             Assert.NotNull(result);
-            Assert.Equal(existingAuthor.Id, result.Id);
-            Assert.Equal("Updated Name", result.Name);
+            Assert.Equal(existingAuthor.Id, result.Data.Id);
+            Assert.Equal("Updated Name", result.Data.Name);
         }
 
         [Fact]

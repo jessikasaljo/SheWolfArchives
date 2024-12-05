@@ -3,7 +3,7 @@ using SheWolf.Domain.Entities;
 
 namespace SheWolf.Application.Commands.Books.DeleteBook
 {
-    public class DeleteBookByIdCommand : IRequest<string>
+    public class DeleteBookByIdCommand : IRequest<OperationResult<string>>
     {
         public Guid Id { get; }
 

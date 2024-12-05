@@ -4,7 +4,7 @@ using SheWolf.Application.Interfaces.RepositoryInterfaces;
 
 namespace SheWolf.Application.Commands.Books.UpdateBook
 {
-    public class UpdateBookByIdCommandHandler : IRequestHandler<UpdateBookByIdCommand, Book>
+    public class UpdateBookByIdCommandHandler : IRequestHandler<UpdateBookByIdCommand, OperationResult<Book>>
     {
         private readonly IBookRepository _bookRepository;
 
@@ -13,31 +13,31 @@ namespace SheWolf.Application.Commands.Books.UpdateBook
             _bookRepository = bookRepository;
         }
 
-        public async Task<Book> Handle(UpdateBookByIdCommand request, CancellationToken cancellationToken)
+        public async Task<OperationResult<Book>> Handle(UpdateBookByIdCommand request, CancellationToken cancellationToken)
         {
             if (request == null)
             {
-                throw new ArgumentNullException(nameof(request), "UpdateBookByIdCommand cannot be null.");
+                return OperationResult<Book>.Failure("UpdateBookByIdCommand cannot be null.");
             }
 
             if (request.UpdatedBook == null)
             {
-                throw new ArgumentNullException(nameof(request.UpdatedBook), "UpdatedBook cannot be null.");
+                return OperationResult<Book>.Failure("UpdatedBook cannot be null.");
             }
 
             if (request.Id == Guid.Empty)
             {
-                throw new ArgumentException("Book ID cannot be an empty GUID.");
+                return OperationResult<Book>.Failure("Book ID cannot be an empty GUID.");
             }
 
             var updatedBook = await _bookRepository.UpdateBook(request.Id, request.UpdatedBook);
 
             if (updatedBook == null)
             {
-                throw new InvalidOperationException($"Failed to update book. No book found with Id: {request.Id}");
+                return OperationResult<Book>.Failure($"Failed to update book. No book found with Id: {request.Id}");
             }
 
-            return updatedBook;
+            return OperationResult<Book>.Successful(updatedBook);
         }
     }
 }
