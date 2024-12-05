@@ -34,13 +34,25 @@ namespace SheWolf.API.Controllers
             try
             {
                 var result = await _mediator.Send(new AddAuthorCommand(authorToAdd));
-                return CreatedAtAction(nameof(GetAuthorsById), new { authorId = result.Id }, result);
+
+                if (result.Success)
+                {
+                    return CreatedAtAction(
+                        nameof(GetAuthorById),
+                        new { authorId = result.Data.Id },
+                        new { message = result.Message, data = result.Data });
+                }
+                else
+                {
+                    return BadRequest(new { message = result.Message, errorMessage = result.ErrorMessage });
+                }
             }
             catch (Exception ex)
             {
                 return HandleError(ex);
             }
         }
+
 
         [HttpGet]
         [Route("getAllAuthors")]
@@ -59,7 +71,7 @@ namespace SheWolf.API.Controllers
 
         [HttpGet]
         [Route("{authorId}")]
-        public async Task<IActionResult> GetAuthorsById(Guid authorId)
+        public async Task<IActionResult> GetAuthorById(Guid authorId)
         {
             try
             {
@@ -90,7 +102,15 @@ namespace SheWolf.API.Controllers
             try
             {
                 var result = await _mediator.Send(new UpdateAuthorByIdCommand(updatedAuthor, updatedAuthorId));
-                return Ok(result);
+
+                if (result.Success)
+                {
+                    return Ok(new { message = result.Message, data = result.Data });
+                }
+                else
+                {
+                    return BadRequest(new { message = result.Message, errorMessage = result.ErrorMessage });
+                }
             }
             catch (Exception ex)
             {
@@ -98,21 +118,32 @@ namespace SheWolf.API.Controllers
             }
         }
 
+
+
         [Authorize]
         [HttpDelete]
         [Route("deleteAuthor/{authorToDeleteId}")]
-        public async Task<IActionResult> DeleteAuthor([FromBody] Guid authorToDeleteId)
+        public async Task<IActionResult> DeleteAuthor(Guid authorToDeleteId)
         {
             try
             {
                 var result = await _mediator.Send(new DeleteAuthorByIdCommand(authorToDeleteId));
-                return Ok(result);
+
+                if (result.Success)
+                {
+                    return Ok(new { message = result.Message, data = result.Data });
+                }
+                else
+                {
+                    return BadRequest(new { message = result.Message, errorMessage = result.ErrorMessage });
+                }
             }
             catch (Exception ex)
             {
                 return HandleError(ex);
             }
         }
+
 
         private IActionResult HandleError(Exception ex)
         {

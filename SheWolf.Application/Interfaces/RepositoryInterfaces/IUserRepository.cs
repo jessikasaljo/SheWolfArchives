@@ -6,6 +6,7 @@ namespace SheWolf.Application.Interfaces.RepositoryInterfaces
     {
         Task<User> AddUser(User user);
         Task<List<User>> GetAllUsers();
+        Task<User> GetUserById(Guid id);
         Task<User> Login(string username, string password);
 
     }

@@ -4,7 +4,7 @@ using SheWolf.Domain.Entities;
 
 namespace SheWolf.Application.Queries.Authors.GetAll
 {
-    public class GetAllAuthorsQueryHandler : IRequestHandler<GetAllAuthorsQuery, List<Author>>
+    public class GetAllAuthorsQueryHandler : IRequestHandler<GetAllAuthorsQuery, OperationResult<List<Author>>>
     {
         private readonly IAuthorRepository _authorRepository;
 
@@ -13,16 +13,16 @@ namespace SheWolf.Application.Queries.Authors.GetAll
             _authorRepository = authorRepository;
         }
 
-        public async Task<List<Author>> Handle(GetAllAuthorsQuery request, CancellationToken cancellationToken)
+        public async Task<OperationResult<List<Author>>> Handle(GetAllAuthorsQuery request, CancellationToken cancellationToken)
         {
             List<Author> allAuthors = await _authorRepository.GetAllAuthors();
 
             if (allAuthors == null || !allAuthors.Any())
             {
-                throw new ArgumentException("Authorlist is empty or null");
+                return OperationResult<List<Author>>.Failure("Author list is empty or null.");
             }
 
-            return allAuthors;
+            return OperationResult<List<Author>>.Successful(allAuthors, "Authors retrieved successfully.");
         }
     }
 }

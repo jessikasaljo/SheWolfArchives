@@ -34,13 +34,25 @@ namespace API.Controllers
             try
             {
                 var result = await _mediator.Send(new AddBookCommand(bookToAdd));
-                return CreatedAtAction(nameof(GetBookById), new { bookId = result.Id }, result);
+
+                if (result.Success)
+                {
+                    return CreatedAtAction(
+                        nameof(GetBookById),
+                        new { bookId = result.Data.Id },
+                        new { message = result.Message, data = result.Data });
+                }
+                else
+                {
+                    return BadRequest(new { message = result.Message, errorMessage = result.ErrorMessage });
+                }
             }
             catch (Exception ex)
             {
                 return HandleError(ex);
             }
         }
+
 
         [HttpGet]
         [Route("getAllBooks")]
@@ -49,7 +61,7 @@ namespace API.Controllers
             try
             {
                 var books = await _mediator.Send(new GetAllBooksQuery());
-                return Ok(books);
+                return Ok(new { message = "Books retrieved successfully", data = books });
             }
             catch (Exception ex)
             {
@@ -63,13 +75,16 @@ namespace API.Controllers
         {
             try
             {
-                var book = await _mediator.Send(new GetBookByIdQuery(bookId));
-                if (book == null)
-                {
-                    return NotFound(new { Message = "Book not found." });
-                }
+                var operationResult = await _mediator.Send(new GetBookByIdQuery(bookId));
 
-                return Ok(book);
+                if (operationResult.Success)
+                {
+                    return Ok(new { message = operationResult.Message, data = operationResult.Data });
+                }
+                else
+                {
+                    return BadRequest(new { message = operationResult.Message, errorMessage = operationResult.ErrorMessage });
+                }
             }
             catch (Exception ex)
             {
@@ -89,8 +104,16 @@ namespace API.Controllers
 
             try
             {
-                var result = await _mediator.Send(new UpdateBookByIdCommand(updatedBook, updatedBookId));
-                return Ok(result);
+                var operationResult = await _mediator.Send(new UpdateBookByIdCommand(updatedBook, updatedBookId));
+
+                if (operationResult.Success)
+                {
+                    return Ok(new { message = "Book updated successfully", data = operationResult.Data });
+                }
+                else
+                {
+                    return BadRequest(new { message = operationResult.Message, errorMessage = operationResult.ErrorMessage });
+                }
             }
             catch (Exception ex)
             {
@@ -101,12 +124,20 @@ namespace API.Controllers
         [Authorize]
         [HttpDelete]
         [Route("deleteBook/{bookToDeleteId}")]
-        public async Task<IActionResult> DeleteBook([FromBody] Guid bookToDeleteId)
+        public async Task<IActionResult> DeleteBook(Guid bookToDeleteId)
         {
             try
             {
-                var result = await _mediator.Send(new DeleteBookByIdCommand(bookToDeleteId));
-                return Ok(result);
+                var operationResult = await _mediator.Send(new DeleteBookByIdCommand(bookToDeleteId));
+
+                if (operationResult.Success)
+                {
+                    return Ok(new { message = "Successfully deleted book", data = operationResult.Data });
+                }
+                else
+                {
+                    return BadRequest(new { message = operationResult.Message, errorMessage = operationResult.ErrorMessage });
+                }
             }
             catch (Exception ex)
             {
@@ -116,7 +147,7 @@ namespace API.Controllers
 
         private IActionResult HandleError(Exception ex)
         {
-            return StatusCode(500, new { Message = "An error occurred while processing your request.", Details = ex.Message });
+            return StatusCode(500, new { message = "An error occurred while processing your request.", details = ex.Message });
         }
     }
 }

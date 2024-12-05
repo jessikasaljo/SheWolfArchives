@@ -34,11 +34,11 @@ namespace SheWolf.Tests.CommandTests.AuthorTests
             var result = await handler.Handle(command, CancellationToken.None);
 
             Assert.NotNull(result);
-            Assert.Equal(newAuthor.Name, result.Name);
-            Assert.NotEqual(Guid.Empty, result.Id);
+            Assert.Equal(newAuthor.Name, result.Data.Name);
+            Assert.NotEqual(Guid.Empty, result.Data.Id);
 
             var authorsInDatabase = await database.Authors.ToListAsync();
-            Assert.Contains(authorsInDatabase, a => a.Id == result.Id);
+            Assert.Contains(authorsInDatabase, a => a.Id == result.Data.Id);
         }
 
         [Fact]
@@ -58,15 +58,15 @@ namespace SheWolf.Tests.CommandTests.AuthorTests
             var result = await handler.Handle(command, CancellationToken.None);
 
             Assert.NotNull(result);
-            Assert.Empty(result.Books);
+            Assert.Empty(result.Data.Books);
 
-            var authorInDatabase = await database.Authors.FindAsync(result.Id);
+            var authorInDatabase = await database.Authors.FindAsync(result.Data.Id);
             Assert.NotNull(authorInDatabase);
             Assert.Empty(authorInDatabase.Books);
         }
 
         [Fact]
-        public async Task Handle_ShouldThrowException_WhenNewAuthorIsNull()
+        public async Task Handle_ShouldReturnFailure_WhenNewAuthorIsNull()
         {
             using var database = CreateInMemoryDatabase();
             var authorRepository = new AuthorRepository(database);
@@ -74,9 +74,10 @@ namespace SheWolf.Tests.CommandTests.AuthorTests
 
             var command = new AddAuthorCommand(null!);
 
-            var exception = await Assert.ThrowsAsync<ArgumentNullException>(() => handler.Handle(command, CancellationToken.None));
+            var result = await handler.Handle(command, CancellationToken.None);
 
-            Assert.Equal("NewAuthor", exception.ParamName);
+            Assert.False(result.Success);
+            Assert.Equal("NewAuthor cannot be null.", result.ErrorMessage);
         }
     }
 }

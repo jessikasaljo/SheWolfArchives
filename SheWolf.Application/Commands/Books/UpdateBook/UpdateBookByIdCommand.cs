@@ -3,7 +3,7 @@ using SheWolf.Domain.Entities;
 
 namespace SheWolf.Application.Commands.Books.UpdateBook
 {
-    public class UpdateBookByIdCommand : IRequest<Book>
+    public class UpdateBookByIdCommand : IRequest<OperationResult<Book>>
     {
         public Book UpdatedBook { get; }
         public Guid Id { get; }

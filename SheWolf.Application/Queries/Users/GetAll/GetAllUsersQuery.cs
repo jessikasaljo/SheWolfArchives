@@ -3,7 +3,7 @@ using SheWolf.Domain.Entities;
 
 namespace SheWolf.Application.Queries.Users.GetAll
 {
-    public class GetAllUsersQuery : IRequest<List<User>>
+    public class GetAllUsersQuery : IRequest<OperationResult<List<User>>>
     {
     }
 }

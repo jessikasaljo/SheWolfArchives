@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SheWolf.Application.Commands.Authors.DeleteAuthor;
+using SheWolf.Application.Interfaces.RepositoryInterfaces;
 using SheWolf.Domain.Entities;
 using SheWolf.Infrastructure.Database;
 using SheWolf.Infrastructure.Repositories;
@@ -32,7 +33,7 @@ namespace SheWolf.Tests.CommandTests.AuthorTests
 
             var result = await handler.Handle(command, CancellationToken.None);
 
-            Assert.Equal("Successfully deleted author", result);
+            Assert.Equal("Successfully deleted author", result.Data);
             Assert.DoesNotContain(existingAuthor, database.Authors);
         }
 
@@ -48,17 +49,20 @@ namespace SheWolf.Tests.CommandTests.AuthorTests
 
             var result = await handler.Handle(command, CancellationToken.None);
 
-            Assert.Equal("Failed to delete author", result);
+            Assert.Equal("Failed to delete author", result.Data);
         }
 
         [Fact]
-        public async Task Handle_ShouldThrowException_WhenRequestIsNull()
+        public async Task Handle_ShouldReturnFailure_WhenRequestIsNull()
         {
             using var database = CreateInMemoryDatabase();
             var authorRepository = new AuthorRepository(database);
             var handler = new DeleteAuthorByIdCommandHandler(authorRepository);
 
-            await Assert.ThrowsAsync<ArgumentNullException>(() => handler.Handle(null!, CancellationToken.None));
+            var result = await handler.Handle(null!, CancellationToken.None);
+
+            Assert.False(result.Success);
+            Assert.Equal("DeleteAuthorByIdCommand cannot be null.", result.ErrorMessage);
         }
     }
 }

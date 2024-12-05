@@ -4,7 +4,7 @@ using SheWolf.Domain.Entities;
 
 namespace SheWolf.Application.Commands.Users.AddUser
 {
-    public class AddUserCommandHandler : IRequestHandler<AddUserCommand, User>
+    public class AddUserCommandHandler : IRequestHandler<AddUserCommand, OperationResult<User>>
     {
         private readonly IUserRepository _userRepository;
 
@@ -13,19 +13,26 @@ namespace SheWolf.Application.Commands.Users.AddUser
             _userRepository = userRepository;
         }
 
-        public async Task<User> Handle(AddUserCommand request, CancellationToken cancellationToken)
+        public async Task<OperationResult<User>> Handle(AddUserCommand request, CancellationToken cancellationToken)
         {
             if (request == null)
             {
-                throw new ArgumentNullException(nameof(request), "AddUserCommand cannot be null.");
+                return OperationResult<User>.Failure("AddUserCommand cannot be null.");
             }
 
             if (request.NewUser == null)
             {
-                throw new ArgumentNullException(nameof(request.NewUser), "NewUser cannot be null.");
+                return OperationResult<User>.Failure("NewUser cannot be null.");
             }
 
-            return await _userRepository.AddUser(request.NewUser);
+            var addedUser = await _userRepository.AddUser(request.NewUser);
+
+            if (addedUser == null)
+            {
+                return OperationResult<User>.Failure("Failed to add the user.");
+            }
+
+            return OperationResult<User>.Successful(addedUser, "User added successfully.");
         }
     }
 }

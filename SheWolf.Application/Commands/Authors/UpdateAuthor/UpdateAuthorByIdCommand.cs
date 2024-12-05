@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace SheWolf.Application.Commands.Authors.UpdateAuthor
 {
-    public class UpdateAuthorByIdCommand : IRequest<Author>
+    public class UpdateAuthorByIdCommand : IRequest<OperationResult<Author>>
     {
         public Author UpdatedAuthor { get; }
         public Guid Id { get; }

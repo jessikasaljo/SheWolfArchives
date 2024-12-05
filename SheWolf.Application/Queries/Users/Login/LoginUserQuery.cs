@@ -3,13 +3,15 @@ using SheWolf.Domain.Entities;
 
 namespace SheWolf.Application.Queries.Users.Login
 {
-    public class LogInUserQuery : IRequest<String>
+    public class LogInUserQuery : IRequest<OperationResult<string>>
     {
-        public User LogInUser { get; }
+        public string Username { get; }
+        public string Password { get; }
 
-        public LogInUserQuery(User logInUser)
+        public LogInUserQuery(string username, string password)
         {
-            LogInUser = logInUser;
+            Username = username;
+            Password = password;
         }
     }
 }

@@ -4,7 +4,7 @@ using SheWolf.Domain.Entities;
 
 namespace SheWolf.Application.Queries.Books.GetAll
 {
-    public class GetAllBooksQueryHandler : IRequestHandler<GetAllBooksQuery, List<Book>>
+    public class GetAllBooksQueryHandler : IRequestHandler<GetAllBooksQuery, OperationResult<List<Book>>>
     {
         private readonly IBookRepository _bookRepository;
 
@@ -13,16 +13,16 @@ namespace SheWolf.Application.Queries.Books.GetAll
             _bookRepository = bookRepository;
         }
 
-        public async Task<List<Book>> Handle(GetAllBooksQuery request, CancellationToken cancellationToken)
+        public async Task<OperationResult<List<Book>>> Handle(GetAllBooksQuery request, CancellationToken cancellationToken)
         {
             List<Book> allBooks = await _bookRepository.GetAllBooks();
 
             if (allBooks == null || !allBooks.Any())
             {
-                throw new ArgumentException("Booklist is empty or null");
+                return OperationResult<List<Book>>.Failure("No books found in the system.");
             }
 
-            return allBooks;
+            return OperationResult<List<Book>>.Successful(allBooks);
         }
     }
 }

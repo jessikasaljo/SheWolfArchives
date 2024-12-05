@@ -2,6 +2,7 @@
 using SheWolf.Application.Interfaces.RepositoryInterfaces;
 using SheWolf.Domain.Entities;
 using SheWolf.Infrastructure.Database;
+using BCrypt.Net;
 
 namespace SheWolf.Infrastructure.Repositories
 {
@@ -16,6 +17,13 @@ namespace SheWolf.Infrastructure.Repositories
 
         public async Task<User> AddUser(User newUser)
         {
+            if (newUser == null)
+            {
+                throw new ArgumentNullException(nameof(newUser), "New user cannot be null.");
+            }
+
+            newUser.Password = BCrypt.Net.BCrypt.HashPassword(newUser.Password);
+
             _database.Users.Add(newUser);
             await _database.SaveChangesAsync();
             return newUser;
@@ -31,6 +39,16 @@ namespace SheWolf.Infrastructure.Repositories
             return await _database.Users.ToListAsync();
         }
 
+        public async Task<User> GetUserById(Guid id)
+        {
+            if (id == Guid.Empty)
+            {
+                throw new ArgumentException("Guid cannot be null or empty");
+            }
+
+            return await _database.Users.FindAsync(id);
+        }
+
         public async Task<User> Login(string username, string password)
         {
             if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
@@ -43,7 +61,14 @@ namespace SheWolf.Infrastructure.Repositories
                 throw new InvalidOperationException("Users table is null or database is not properly initialized.");
             }
 
-            return await _database.Users.FirstOrDefaultAsync(user => user.Username == username && user.Password == password);
+            var user = await _database.Users.FirstOrDefaultAsync(u => u.Username == username);
+
+            if (user == null || !BCrypt.Net.BCrypt.Verify(password, user.Password))
+            {
+                throw new UnauthorizedAccessException("Invalid username or password");
+            }
+
+            return user;
         }
     }
 }

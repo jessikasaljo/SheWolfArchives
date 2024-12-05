@@ -1,12 +1,13 @@
 ﻿using MediatR;
-using SheWolf.Application.Queries.Users.Login.Helpers;
 using SheWolf.Application.Interfaces.RepositoryInterfaces;
+using SheWolf.Application.Queries.Users.Login.Helpers;
+using SheWolf.Domain.Entities;
 
 namespace SheWolf.Application.Queries.Users.Login
 {
-    public class LogInUserQueryHandler : IRequestHandler<LogInUserQuery, string>
+    public class LogInUserQueryHandler : IRequestHandler<LogInUserQuery, OperationResult<string>>
     {
-        private readonly IUserRepository _userRepository; // Inject the repository
+        private readonly IUserRepository _userRepository;
         private readonly TokenHelper _tokenHelper;
 
         public LogInUserQueryHandler(IUserRepository userRepository, TokenHelper tokenHelper)
@@ -15,18 +16,18 @@ namespace SheWolf.Application.Queries.Users.Login
             _tokenHelper = tokenHelper;
         }
 
-        public async Task<string> Handle(LogInUserQuery request, CancellationToken cancellationToken)
+        public async Task<OperationResult<string>> Handle(LogInUserQuery request, CancellationToken cancellationToken)
         {
-            // Use the Login method in the UserRepository to authenticate the user
-            var user = await _userRepository.Login(request.LogInUser.Username, request.LogInUser.Password);
+            var user = await _userRepository.Login(request.Username, request.Password);
 
             if (user == null)
             {
-                throw new UnauthorizedAccessException("Invalid username or password");
+                return OperationResult<string>.Failure("Invalid username or password");
             }
 
-            string token = _tokenHelper.GenerateJwtToken(user); // Generate token using TokenHelper
-            return token;
+            string token = _tokenHelper.GenerateJwtToken(user);
+
+            return OperationResult<string>.Successful(token, "Login successful");
         }
     }
 }

@@ -4,7 +4,7 @@ using SheWolf.Application.Interfaces.RepositoryInterfaces;
 
 namespace SheWolf.Application.Queries.Books.GetById
 {
-    public class GetBookByIdQueryHandler : IRequestHandler<GetBookByIdQuery, Book>
+    public class GetBookByIdQueryHandler : IRequestHandler<GetBookByIdQuery, OperationResult<Book>>
     {
         private readonly IBookRepository _bookRepository;
 
@@ -13,21 +13,21 @@ namespace SheWolf.Application.Queries.Books.GetById
             _bookRepository = bookRepository;
         }
 
-        public async Task<Book> Handle(GetBookByIdQuery request, CancellationToken cancellationToken)
+        public async Task<OperationResult<Book>> Handle(GetBookByIdQuery request, CancellationToken cancellationToken)
         {
             if (request == null)
             {
-                throw new ArgumentNullException(nameof(request), "GetBookByIdQuery cannot be null.");
+                return OperationResult<Book>.Failure("The request was null.");
             }
 
             Book wantedBook = await _bookRepository.GetBookById(request.Id);
 
             if (wantedBook == null)
             {
-                throw new InvalidOperationException($"Book with ID {request.Id} not found.");
+                return OperationResult<Book>.Failure($"Book with ID {request.Id} not found.");
             }
 
-            return wantedBook;
+            return OperationResult<Book>.Successful(wantedBook);
         }
     }
 }

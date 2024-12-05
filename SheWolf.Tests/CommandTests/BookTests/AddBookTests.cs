@@ -33,23 +33,26 @@ namespace SheWolf.Tests.CommandTests.BookTests
             var result = await handler.Handle(command, CancellationToken.None);
 
             Assert.NotNull(result);
-            Assert.Equal(newBook.Title, result.Title);
-            Assert.NotEqual(Guid.Empty, result.Id);
+            Assert.Equal(newBook.Title, result.Data.Title);
+            Assert.NotEqual(Guid.Empty, result.Data.Id);
 
             var booksInDatabase = await database.Books.ToListAsync();
             Assert.Contains(booksInDatabase, book => book.Title == newBook.Title);
         }
 
         [Fact]
-        public async Task Handle_ShouldThrowException_WhenNewBookIsNull()
+        public async Task Handle_ShouldReturnFailure_WhenNewBookIsNull()
         {
             using var database = CreateInMemoryDatabase();
             var bookRepository = new BookRepository(database);
             var handler = new AddBookCommandHandler(bookRepository);
 
-            AddBookCommand command = new(null);
-            var exception = await Assert.ThrowsAsync<ArgumentNullException>(() => handler.Handle(command, CancellationToken.None));
-            Assert.Equal("NewBook", exception.ParamName);
+            var command = new AddBookCommand(null!);
+
+            var result = await handler.Handle(command, CancellationToken.None);
+
+            Assert.False(result.Success);
+            Assert.Equal("NewBook cannot be null.", result.ErrorMessage);
         }
 
         [Fact]
@@ -68,7 +71,7 @@ namespace SheWolf.Tests.CommandTests.BookTests
             var result1 = await handler.Handle(command1, CancellationToken.None);
             var result2 = await handler.Handle(command2, CancellationToken.None);
 
-            Assert.NotEqual(result1.Id, result2.Id);
+            Assert.NotEqual(result1.Data.Id, result2.Data.Id);
         }
     }
 }

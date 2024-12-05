@@ -3,7 +3,7 @@ using SheWolf.Domain.Entities;
 
 namespace SheWolf.Application.Commands.Users.AddUser
 {
-    public class AddUserCommand : IRequest<User>
+    public class AddUserCommand : IRequest<OperationResult<User>>
     {
         public User NewUser { get; }
 

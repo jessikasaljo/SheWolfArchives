@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace SheWolf.Application.Queries.Books.GetById
 {
-    public class GetBookByIdQuery : IRequest<Book>
+    public class GetBookByIdQuery : IRequest<OperationResult<Book>>
     {
         public Guid Id { get; }
 

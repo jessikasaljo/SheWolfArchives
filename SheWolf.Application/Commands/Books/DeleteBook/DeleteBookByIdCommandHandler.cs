@@ -1,10 +1,11 @@
 ﻿using MediatR;
 using SheWolf.Domain.Entities;
 using SheWolf.Application.Interfaces.RepositoryInterfaces;
+using SheWolf.Application.Commands.Books.DeleteBook;
 
 namespace SheWolf.Application.Commands.Books.DeleteBook
 {
-    public class DeleteBookByIdCommandHandler : IRequestHandler<DeleteBookByIdCommand, string>
+    public class DeleteBookByIdCommandHandler : IRequestHandler<DeleteBookByIdCommand, OperationResult<string>>
     {
         private readonly IBookRepository _bookRepository;
 
@@ -13,21 +14,26 @@ namespace SheWolf.Application.Commands.Books.DeleteBook
             _bookRepository = bookRepository;
         }
 
-        public async Task<string> Handle(DeleteBookByIdCommand request, CancellationToken cancellationToken)
+        public async Task<OperationResult<string>> Handle(DeleteBookByIdCommand request, CancellationToken cancellationToken)
         {
             if (request == null)
             {
-                throw new ArgumentNullException(nameof(request), "DeleteBookByIdCommand cannot be null.");
+                return OperationResult<string>.Failure("DeleteBookByIdCommand cannot be null.");
             }
 
             if (request.Id == Guid.Empty)
             {
-                throw new ArgumentException("Book ID cannot be an empty GUID.");
+                return OperationResult<string>.Failure("Book ID cannot be an empty GUID.");
             }
 
             var deletedBook = await _bookRepository.DeleteBookById(request.Id);
 
-            return deletedBook;
+            if (deletedBook == null)
+            {
+                return OperationResult<string>.Failure($"No book found with ID {request.Id}.");
+            }
+
+            return OperationResult<string>.Successful("Successfully deleted book.");
         }
     }
 }
