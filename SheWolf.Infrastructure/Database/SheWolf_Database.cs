@@ -12,5 +12,16 @@ namespace SheWolf.Infrastructure.Database
         public SheWolf_Database(DbContextOptions<SheWolf_Database> options) : base(options)
         {
         }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<Book>()
+                .HasOne(b => b.Author)
+                .WithMany(a => a.Books)
+                .HasForeignKey(b => b.AuthorId)
+                .OnDelete(DeleteBehavior.Cascade);
+        }
     }
 }
