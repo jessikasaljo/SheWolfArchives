@@ -4,6 +4,7 @@ using Microsoft.OpenApi.Models;
 using SheWolf.Application;
 using SheWolf.Infrastructure;
 using System.Text;
+using Microsoft.AspNetCore.Mvc;
 
 namespace SheWolf.API
 {
@@ -80,8 +81,18 @@ namespace SheWolf.API
                 });
             });
 
-            builder.Services.AddControllers();
-            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+            builder.Services.AddControllers(options =>
+            {
+                options.CacheProfiles.Add("DefaultCache",
+                    new CacheProfile()
+                    {
+                        Duration = 600,
+                        Location = ResponseCacheLocation.Any
+                    });
+            });
+
+            builder.Services.AddMemoryCache();
+
             builder.Services.AddEndpointsApiExplorer();
 
             var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
@@ -100,6 +111,7 @@ namespace SheWolf.API
 
             app.UseHttpsRedirection();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.MapControllers();

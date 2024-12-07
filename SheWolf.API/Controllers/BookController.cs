@@ -56,6 +56,7 @@ namespace API.Controllers
 
         [HttpGet]
         [Route("getAllBooks")]
+        [ResponseCache(CacheProfileName = "DefaultCache")]
         public async Task<IActionResult> GetAllBooks()
         {
             try
