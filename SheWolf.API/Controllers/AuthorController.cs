@@ -56,6 +56,7 @@ namespace SheWolf.API.Controllers
 
         [HttpGet]
         [Route("getAllAuthors")]
+        [ResponseCache(CacheProfileName = "DefaultCache")]
         public async Task<IActionResult> GetAllAuthors()
         {
             try
