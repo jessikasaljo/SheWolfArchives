@@ -16,10 +16,27 @@ namespace SheWolf.Infrastructure.Repositories
 
         public async Task<Book> AddBook(Book newBook)
         {
+            if (newBook == null)
+            {
+                throw new ArgumentNullException(nameof(newBook), "The book cannot be null.");
+            }
+
+            var existingAuthor = _database.Authors.Local.FirstOrDefault(a => a.Id == newBook.Author.Id);
+            if (existingAuthor == null)
+            {
+                if (_database.Entry(newBook.Author).State == EntityState.Detached)
+                {
+                    _database.Attach(newBook.Author);
+                }
+            }
+
             _database.Books.Add(newBook);
             await _database.SaveChangesAsync();
+
             return newBook;
         }
+
+
 
         public async Task<string> DeleteBookById(Guid id)
         {
@@ -38,8 +55,23 @@ namespace SheWolf.Infrastructure.Repositories
 
         public async Task<List<Book>> GetAllBooks()
         {
-            return await _database.Books.ToListAsync();
+            try
+            {
+                var books = await _database.Books.ToListAsync();
+
+                if (books == null || !books.Any())
+                {
+                    throw new Exception("No books found.");
+                }
+
+                return books;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error fetching books from database", ex);
+            }
         }
+
 
         public async Task<Book> GetBookById(Guid id)
         {

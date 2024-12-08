@@ -1,12 +1,17 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using SheWolf.Application.Commands.Books.AddBook;
 using SheWolf.Application.Commands.Books.DeleteBook;
 using SheWolf.Application.Commands.Books.UpdateBook;
+using SheWolf.Application.DTOs;
+using SheWolf.Application.Mappers;
+using SheWolf.Application.Queries.Authors.GetById;
 using SheWolf.Application.Queries.Books.GetAll;
 using SheWolf.Application.Queries.Books.GetById;
 using SheWolf.Domain.Entities;
+using SheWolf.Infrastructure.Database;
 
 namespace API.Controllers
 {
@@ -15,16 +20,18 @@ namespace API.Controllers
     public class BookController : Controller
     {
         internal readonly IMediator _mediator;
+        private readonly SheWolf_Database _database;
 
-        public BookController(IMediator mediator)
+        public BookController(IMediator mediator, SheWolf_Database database)
         {
             _mediator = mediator;
+            _database = database;
         }
 
         [Authorize]
         [HttpPost]
         [Route("addNewBook")]
-        public async Task<IActionResult> AddNewBook([FromBody] Book bookToAdd)
+        public async Task<IActionResult> AddNewBook([FromBody] BookDto bookToAdd)
         {
             if (!ModelState.IsValid)
             {
@@ -33,25 +40,46 @@ namespace API.Controllers
 
             try
             {
-                var result = await _mediator.Send(new AddBookCommand(bookToAdd));
-
-                if (result.Success)
+                if (bookToAdd == null)
                 {
-                    return CreatedAtAction(
-                        nameof(GetBookById),
-                        new { bookId = result.Data.Id },
-                        new { message = result.Message, data = result.Data });
+                    return BadRequest(new { message = "Book data is required." });
                 }
-                else
+
+                var operationResult = await _mediator.Send(new GetAuthorByIdQuery(bookToAdd.AuthorId));
+                var authorDto = operationResult.Data;
+
+                if (authorDto == null)
+                {
+                    return BadRequest(new { message = "Author not found." });
+                }
+
+                var author = EntityMapper.MapToEntity(authorDto);
+
+                if (_database.ChangeTracker.Entries<Author>().Any(e => e.Entity.Id == author.Id))
+                {
+                    author = _database.Authors.Local.FirstOrDefault(a => a.Id == author.Id);
+                }
+
+                var book = EntityMapper.MapToEntity(bookToAdd, author);
+
+                var result = await _mediator.Send(new AddBookCommand(book));
+
+                if (!result.Success)
                 {
                     return BadRequest(new { message = result.Message, errorMessage = result.ErrorMessage });
                 }
+
+                return CreatedAtAction(
+                    nameof(GetBookById),
+                    new { bookId = result.Data.Id },
+                    new { message = result.Message, data = result.Data });
             }
             catch (Exception ex)
             {
                 return HandleError(ex);
             }
         }
+
 
 
         [HttpGet]
@@ -62,7 +90,14 @@ namespace API.Controllers
             try
             {
                 var books = await _mediator.Send(new GetAllBooksQuery());
-                return Ok(new { message = "Books retrieved successfully", data = books });
+
+                if (books.Data == null || !books.Data.Any())
+                {
+                    return Ok(new { message = "No books found.", data = new List<BookDto>() });
+                }
+
+                var bookDtos = books.Data.Select(b => EntityMapper.MapToDto(b)).ToList();
+                return Ok(new { message = "Books retrieved successfully", data = bookDtos });
             }
             catch (Exception ex)
             {
@@ -78,14 +113,13 @@ namespace API.Controllers
             {
                 var operationResult = await _mediator.Send(new GetBookByIdQuery(bookId));
 
-                if (operationResult.Success)
+                if (operationResult.Data == null)
                 {
-                    return Ok(new { message = operationResult.Message, data = operationResult.Data });
+                    return NotFound(new { Message = "Book not found." });
                 }
-                else
-                {
-                    return BadRequest(new { message = operationResult.Message, errorMessage = operationResult.ErrorMessage });
-                }
+
+                var bookDto = EntityMapper.MapToDto(operationResult.Data);
+                return Ok(new { message = operationResult.Message, data = bookDto });
             }
             catch (Exception ex)
             {
@@ -96,7 +130,7 @@ namespace API.Controllers
         [Authorize]
         [HttpPut]
         [Route("updateBook/{updatedBookId}")]
-        public async Task<IActionResult> UpdateBook([FromBody] Book updatedBook, Guid updatedBookId)
+        public async Task<IActionResult> UpdateBook([FromBody] BookDto updatedBook, Guid updatedBookId)
         {
             if (!ModelState.IsValid)
             {
@@ -105,15 +139,24 @@ namespace API.Controllers
 
             try
             {
-                var operationResult = await _mediator.Send(new UpdateBookByIdCommand(updatedBook, updatedBookId));
+                var operationResult = await _mediator.Send(new GetAuthorByIdQuery(updatedBook.AuthorId));
 
-                if (operationResult.Success)
+                if (!operationResult.Success || operationResult.Data == null)
                 {
-                    return Ok(new { message = "Book updated successfully", data = operationResult.Data });
+                    return BadRequest(new { message = "Author not found." });
+                }
+
+                var authorDto = EntityMapper.MapToEntity(operationResult.Data);
+                var book = EntityMapper.MapToEntity(updatedBook, authorDto);
+                var updateResult = await _mediator.Send(new UpdateBookByIdCommand(book, updatedBookId));
+
+                if (updateResult.Success)
+                {
+                    return Ok(new { message = "Book updated successfully", data = updateResult.Data });
                 }
                 else
                 {
-                    return BadRequest(new { message = operationResult.Message, errorMessage = operationResult.ErrorMessage });
+                    return BadRequest(new { message = updateResult.Message, errorMessage = updateResult.ErrorMessage });
                 }
             }
             catch (Exception ex)
@@ -121,6 +164,7 @@ namespace API.Controllers
                 return HandleError(ex);
             }
         }
+
 
         [Authorize]
         [HttpDelete]
@@ -148,7 +192,12 @@ namespace API.Controllers
 
         private IActionResult HandleError(Exception ex)
         {
-            return StatusCode(500, new { message = "An error occurred while processing your request.", details = ex.Message });
+            return StatusCode(500, new
+            {
+                message = "An error occurred while processing your request.",
+                details = ex.Message,
+                innerException = ex.InnerException?.Message
+            });
         }
     }
 }

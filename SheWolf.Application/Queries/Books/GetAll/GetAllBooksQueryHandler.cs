@@ -31,6 +31,11 @@ namespace SheWolf.Application.Queries.Books.GetAll
                 _memoryCache.Set(CacheKey, allBooks, TimeSpan.FromMinutes(10));
             }
 
+            if (allBooks == null || !allBooks.Any())
+            {
+                return OperationResult<List<Book>>.Failure("No books found in the system.");
+            }
+
             return OperationResult<List<Book>>.Successful(allBooks, "Books retrieved successfully.");
         }
     }

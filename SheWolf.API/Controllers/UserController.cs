@@ -6,6 +6,7 @@ using SheWolf.Application.Commands.Users.AddUser;
 using SheWolf.Application.Queries.Users.Login;
 using Microsoft.AspNetCore.Authorization;
 using SheWolf.Application.Queries.Users.GetById;
+using SheWolf.Application.DTOs;
 
 namespace SheWolf.API.Controllers
 {
@@ -28,13 +29,18 @@ namespace SheWolf.API.Controllers
             try
             {
                 var getAllUsers = await _mediator.Send(new GetAllUsersQuery());
-                return Ok(getAllUsers);
+                var userDtos = getAllUsers.Data.Select(user => new UserDto
+                {
+                    Id = user.Id,
+                    Username = user.Username
+                }).ToList();
+
+                return Ok(userDtos);
             }
             catch (Exception ex)
             {
                 return BadRequest(ex.Message);
             }
-
         }
 
         [Authorize]
@@ -48,7 +54,13 @@ namespace SheWolf.API.Controllers
 
                 if (result.Success)
                 {
-                    return Ok(new { message = result.Message, data = result.Data });
+                    var userDto = new UserDto
+                    {
+                        Id = result.Data.Id,
+                        Username = result.Data.Username
+                    };
+
+                    return Ok(new { message = result.Message, data = userDto });
                 }
                 else
                 {
@@ -60,7 +72,6 @@ namespace SheWolf.API.Controllers
                 return HandleError(ex);
             }
         }
-
 
         [HttpPost]
         [Route("Register")]
@@ -77,7 +88,13 @@ namespace SheWolf.API.Controllers
 
                 if (result.Success)
                 {
-                    return CreatedAtAction(nameof(GetUserById), new { userId = result.Data.Id }, new { message = result.Message, data = result.Data });
+                    var userDto = new UserDto
+                    {
+                        Id = result.Data.Id,
+                        Username = result.Data.Username
+                    };
+
+                    return CreatedAtAction(nameof(GetUserById), new { userId = result.Data.Id }, new { message = result.Message, data = userDto });
                 }
                 else
                 {
@@ -113,10 +130,14 @@ namespace SheWolf.API.Controllers
             }
         }
 
-
         private IActionResult HandleError(Exception ex)
         {
-            return StatusCode(500, new { message = "An error occurred while processing your request.", details = ex.Message });
+            return StatusCode(500, new
+            {
+                message = "An error occurred while processing your request.",
+                details = ex.Message,
+                innerException = ex.InnerException?.Message
+            });
         }
     }
 }

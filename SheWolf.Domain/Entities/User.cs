@@ -9,7 +9,7 @@ namespace SheWolf.Domain.Entities
         public string Username { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Password is required")]
-        [StringLength(50, MinimumLength = 3, ErrorMessage = "Password must be between 3 and 50 characters")]
+        [StringLength(255, MinimumLength = 3, ErrorMessage = "Password must be at least 3 characters")]
         public string Password { get; set; } = string.Empty;
     }
 }

@@ -1,14 +1,10 @@
 ﻿using MediatR;
 using SheWolf.Domain.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using SheWolf.Application.DTOs;
 
 namespace SheWolf.Application.Commands.Books.AddBook
 {
-    public class AddBookCommand : IRequest<OperationResult<Book>>
+    public class AddBookCommand : IRequest<OperationResult<BookDto>>
     {
         public Book NewBook { get; }
 

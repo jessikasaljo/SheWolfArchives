@@ -1,4 +1,5 @@
-﻿using SheWolf.Domain.Entities;
+﻿using SheWolf.Application.DTOs;
+using SheWolf.Domain.Entities;
 
 namespace SheWolf.Application.Interfaces.RepositoryInterfaces
 {
@@ -8,7 +9,7 @@ namespace SheWolf.Application.Interfaces.RepositoryInterfaces
         Task<List<Author>> GetAllAuthors();
         Task<Author> GetAuthorById(Guid id);
         Task<string> DeleteAuthorById(Guid id);
-        Task<Author> UpdateAuthor(Guid id, Author author);
+        Task<Author> UpdateAuthor(Guid id, AuthorDto authorDto);
 
     }
 }
