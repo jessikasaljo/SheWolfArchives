@@ -5,7 +5,7 @@ using SheWolf.Domain.Entities;
 using SheWolf.Infrastructure.Database;
 using SheWolf.Infrastructure.Repositories;
 
-namespace SheWolf.Tests.CommandTests.AuthorTests
+namespace SheWolf.Tests.UnitTests.CommandTests.AuthorTests
 {
     public class DeleteAuthorTests
     {
