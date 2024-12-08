@@ -1,14 +1,10 @@
 ﻿using MediatR;
 using SheWolf.Domain.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using SheWolf.Application.DTOs;
 
 namespace SheWolf.Application.Commands.Authors.UpdateAuthor
 {
-    public class UpdateAuthorByIdCommand : IRequest<OperationResult<Author>>
+    public class UpdateAuthorByIdCommand : IRequest<OperationResult<AuthorDto>>
     {
         public Author UpdatedAuthor { get; }
         public Guid Id { get; }

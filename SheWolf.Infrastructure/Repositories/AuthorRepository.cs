@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using SheWolf.Application.DTOs;
 using SheWolf.Application.Interfaces.RepositoryInterfaces;
 using SheWolf.Domain.Entities;
 using SheWolf.Infrastructure.Database;
@@ -38,7 +39,9 @@ namespace SheWolf.Infrastructure.Repositories
 
         public async Task<List<Author>> GetAllAuthors()
         {
-            return await _database.Authors.ToListAsync();
+            return await _database.Authors
+                .Include(a => a.Books)
+                .ToListAsync();
         }
 
         public async Task<Author> GetAuthorById(Guid id)
@@ -48,7 +51,9 @@ namespace SheWolf.Infrastructure.Repositories
                 throw new ArgumentException("Author ID cannot be an empty GUID.", nameof(id));
             }
 
-            Author? author = await _database.Authors.FirstOrDefaultAsync(author => author.Id == id);
+            Author? author = await _database.Authors
+                .Include(a => a.Books)
+                .FirstOrDefaultAsync(a => a.Id == id);
 
             if (author == null)
             {
@@ -58,11 +63,12 @@ namespace SheWolf.Infrastructure.Repositories
             return author;
         }
 
-        public async Task<Author> UpdateAuthor(Guid id, Author authorToUpdate)
+
+        public async Task<Author> UpdateAuthor(Guid id, AuthorDto authorToUpdateDto)
         {
-            if (authorToUpdate == null)
+            if (authorToUpdateDto == null)
             {
-                throw new ArgumentNullException(nameof(authorToUpdate), "AuthorToUpdate cannot be null.");
+                throw new ArgumentNullException(nameof(authorToUpdateDto), "AuthorToUpdate cannot be null.");
             }
 
             var existingAuthor = _database.Authors.FirstOrDefault(author => author.Id == id);
@@ -71,7 +77,7 @@ namespace SheWolf.Infrastructure.Repositories
                 return null;
             }
 
-            existingAuthor.Name = authorToUpdate.Name;
+            existingAuthor.Name = authorToUpdateDto.Name;
             await _database.SaveChangesAsync();
 
             return existingAuthor;

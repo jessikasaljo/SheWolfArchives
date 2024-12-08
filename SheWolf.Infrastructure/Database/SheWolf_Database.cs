@@ -17,11 +17,30 @@ namespace SheWolf.Infrastructure.Database
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<Book>()
-                .HasOne(b => b.Author)
-                .WithMany(a => a.Books)
-                .HasForeignKey(b => b.AuthorId)
-                .OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<Book>(entity =>
+            {
+                entity.HasOne(b => b.Author)
+                      .WithMany(a => a.Books)
+                      .HasForeignKey(b => b.AuthorId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                entity.Property(b => b.Title)
+                      .IsRequired()
+                      .HasMaxLength(50);
+            });
+
+            modelBuilder.Entity<User>(entity =>
+            {
+                entity.Property(u => u.Username)
+                      .IsRequired()
+                      .HasMaxLength(50);
+
+                entity.Property(u => u.Password)
+                      .IsRequired()
+                      .HasMaxLength(255);
+            });
         }
+
+
     }
 }

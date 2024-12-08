@@ -9,16 +9,15 @@ namespace SheWolf.Domain.Entities
         [StringLength(50, ErrorMessage = "Title can be maximum 50 characters")]
         public string Title { get; set; }
 
-        [Required(ErrorMessage = "Author is required")]
-        [JsonIgnore]
-        public Author Author { get; set; }
+        [Required(ErrorMessage = "AuthorId is required")]
         public Guid AuthorId { get; set; }
 
-        public Book(string title, Author author)
+        public Author Author { get; set; }
+
+        public Book(string title, Guid authorId)
         {
             Title = title;
-            Author = author;
-            AuthorId = author.Id;
+            AuthorId = authorId;
         }
 
         public Book() { }

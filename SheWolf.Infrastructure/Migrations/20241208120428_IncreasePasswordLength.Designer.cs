@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SheWolf.Infrastructure.Database;
 
@@ -11,9 +12,11 @@ using SheWolf.Infrastructure.Database;
 namespace SheWolf.Infrastructure.Migrations
 {
     [DbContext(typeof(SheWolf_Database))]
-    partial class SheWolf_DatabaseModelSnapshot : ModelSnapshot
+    [Migration("20241208120428_IncreasePasswordLength")]
+    partial class IncreasePasswordLength
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

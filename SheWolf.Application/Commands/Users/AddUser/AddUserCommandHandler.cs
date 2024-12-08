@@ -1,10 +1,12 @@
 ﻿using MediatR;
 using SheWolf.Application.Interfaces.RepositoryInterfaces;
 using SheWolf.Domain.Entities;
+using SheWolf.Application.DTOs;
+using SheWolf.Application.Mappers;
 
 namespace SheWolf.Application.Commands.Users.AddUser
 {
-    public class AddUserCommandHandler : IRequestHandler<AddUserCommand, OperationResult<User>>
+    public class AddUserCommandHandler : IRequestHandler<AddUserCommand, OperationResult<UserDto>>
     {
         private readonly IUserRepository _userRepository;
 
@@ -13,26 +15,28 @@ namespace SheWolf.Application.Commands.Users.AddUser
             _userRepository = userRepository;
         }
 
-        public async Task<OperationResult<User>> Handle(AddUserCommand request, CancellationToken cancellationToken)
+        public async Task<OperationResult<UserDto>> Handle(AddUserCommand request, CancellationToken cancellationToken)
         {
             if (request == null)
             {
-                return OperationResult<User>.Failure("AddUserCommand cannot be null.");
+                return OperationResult<UserDto>.Failure("AddUserCommand cannot be null.");
             }
 
             if (request.NewUser == null)
             {
-                return OperationResult<User>.Failure("NewUser cannot be null.");
+                return OperationResult<UserDto>.Failure("NewUser cannot be null.");
             }
 
             var addedUser = await _userRepository.AddUser(request.NewUser);
 
             if (addedUser == null)
             {
-                return OperationResult<User>.Failure("Failed to add the user.");
+                return OperationResult<UserDto>.Failure("Failed to add the user.");
             }
 
-            return OperationResult<User>.Successful(addedUser, "User added successfully.");
+            var addedUserDto = EntityMapper.MapToDto(addedUser);
+
+            return OperationResult<UserDto>.Successful(addedUserDto, "User added successfully.");
         }
     }
 }
