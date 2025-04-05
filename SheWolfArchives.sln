@@ -13,8 +13,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SheWolf.Infrastructure", "S
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SheWolf.Tests", "SheWolf.Tests\SheWolf.Tests.csproj", "{C0BB04DE-FF9C-4E2B-99B2-EEC0C0942854}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SheWolf.Frontend", "SheWolf.Frontend\SheWolf.Frontend.csproj", "{8AE49399-41D9-4D2A-80F6-0B2EE1D8B623}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

@@ -46,7 +46,7 @@ namespace SheWolf.API
 
             builder.Services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "Jessika Säljö", Version = "v1" });
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "Jessika Sï¿½ljï¿½", Version = "v1" });
 
                 c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                 {
@@ -73,9 +73,9 @@ namespace SheWolf.API
 
             builder.Services.AddCors(options =>
             {
-                options.AddPolicy("AllowFrontend", policy =>
+                options.AddPolicy("AllowReactApp", policy =>
                 {
-                    policy.WithOrigins("http://localhost:7239")
+                    policy.WithOrigins("http://localhost:3000")
                           .AllowAnyHeader()
                           .AllowAnyMethod();
                 });
@@ -108,7 +108,7 @@ namespace SheWolf.API
                 app.UseSwaggerUI();
             }
 
-            app.UseCors("AllowFrontend");
+            app.UseCors("AllowReactApp");
 
             app.UseHttpsRedirection();
 
