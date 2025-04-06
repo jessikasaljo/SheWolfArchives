@@ -10,8 +10,6 @@ namespace SheWolf.Infrastructure
     {
         public static IServiceCollection AddInfrastructure(this IServiceCollection services, string connectionString)
         {
-            services.AddSingleton<MockDatabase>();
-
             services.AddDbContext<SheWolf_Database>(options =>
             {
                 options.UseSqlServer(connectionString);

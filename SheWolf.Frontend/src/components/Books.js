@@ -1,50 +1,43 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
+import BookCard from './BookCard';
 
-function Books() {
+function BookList() {
   const [books, setBooks] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    fetch('https://your-api-endpoint.com/api/books') // Replace with your API URL
-      .then((response) => {
+    console.log('Fetching books...');
+    fetch('http://localhost:5252/books')
+      .then(response => {
         if (!response.ok) {
           throw new Error('Failed to fetch books');
         }
         return response.json();
       })
-      .then((data) => {
-        setBooks(data);  // Assuming the API returns a list of books
-        setLoading(false);
+      .then(data => {
+        setBooks(data.data || []);
       })
-      .catch((err) => {
-        setError(err.message);
-        setLoading(false);
+      .catch(error => {
+        console.error('Error fetching books:', error);
+        setError(error.message);
       });
-  }, []); // Empty dependency array ensures this runs once when the component mounts
-
-  if (loading) {
-    return <div>Loading books...</div>;
-  }
-
-  if (error) {
-    return <div>Error: {error}</div>;
-  }
+  }, []);
 
   return (
     <div>
-      <h1>Books</h1>
-      <ul>
-        {books.map((book) => (
-          <li key={book.id}>
-            <h2>{book.title}</h2>
-            <p>Author: {book.author}</p>
-            <p>ISBN: {book.isbn}</p>
-          </li>
-        ))}
-      </ul>
+      <h1>Books in our library</h1>
+      {error && <p>Error: {error}</p>}
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '20px' }}>
+        {books && books.length > 0 ? (
+          books.map(book => (
+            <BookCard key={book.id} book={book} />
+          ))
+        ) : (
+          <p>No books available</p>
+        )}
+      </div>
     </div>
   );
 }
 
-export default Books;
+export default BookList;

@@ -12,7 +12,7 @@ using SheWolf.Infrastructure.Database;
 namespace SheWolf.Infrastructure.Migrations
 {
     [DbContext(typeof(SheWolf_Database))]
-    [Migration("20241203141620_InitialMigration")]
+    [Migration("20250406112008_InitialMigration")]
     partial class InitialMigration
     {
         /// <inheritdoc />
@@ -20,7 +20,7 @@ namespace SheWolf.Infrastructure.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.11")
+                .HasAnnotation("ProductVersion", "9.0.0")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -47,8 +47,12 @@ namespace SheWolf.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("AuthorId")
+                    b.Property<Guid>("AuthorId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Picture")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -70,11 +74,13 @@ namespace SheWolf.Infrastructure.Migrations
 
                     b.Property<string>("Password")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
 
                     b.Property<string>("Username")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.HasKey("Id");
 
@@ -85,7 +91,9 @@ namespace SheWolf.Infrastructure.Migrations
                 {
                     b.HasOne("SheWolf.Domain.Entities.Author", "Author")
                         .WithMany("Books")
-                        .HasForeignKey("AuthorId");
+                        .HasForeignKey("AuthorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Author");
                 });

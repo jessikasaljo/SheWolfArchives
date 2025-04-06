@@ -14,10 +14,13 @@ namespace SheWolf.Domain.Entities
 
         public Author Author { get; set; }
 
-        public Book(string title, Guid authorId)
+        public string Picture { get; set; } = "https://upload.wikimedia.org/wikipedia/commons/a/ac/No_image_available.svg";
+
+        public Book(string title, Guid authorId, string picture = "https://upload.wikimedia.org/wikipedia/commons/a/ac/No_image_available.svg")
         {
             Title = title;
             AuthorId = authorId;
+            Picture = picture;
         }
 
         public Book() { }

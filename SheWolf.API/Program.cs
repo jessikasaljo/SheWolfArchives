@@ -3,8 +3,8 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using SheWolf.Application;
 using SheWolf.Infrastructure;
+using SheWolf.Infrastructure.Database;
 using System.Text;
-using Microsoft.AspNetCore.Mvc;
 
 namespace SheWolf.API
 {
@@ -83,12 +83,6 @@ namespace SheWolf.API
 
             builder.Services.AddControllers(options =>
             {
-                options.CacheProfiles.Add("DefaultCache",
-                    new CacheProfile()
-                    {
-                        Duration = 600,
-                        Location = ResponseCacheLocation.Any
-                    });
             });
 
             builder.Services.AddMemoryCache();
@@ -117,7 +111,23 @@ namespace SheWolf.API
 
             app.MapControllers();
 
+            //Adds seed data to database
+            using (var scope = app.Services.CreateScope())
+            {
+                var services = scope.ServiceProvider;
+                var context = services.GetRequiredService<SheWolf_Database>();
+                context.Database.EnsureCreated();
+                SeedHelper.Seed(context);
+            }
+
             app.Run();
         }
+
+            public static IHostBuilder CreateHostBuilder(string[] args) =>
+            Host.CreateDefaultBuilder(args)
+            .ConfigureWebHostDefaults(webBuilder =>
+            {
+                webBuilder.UseStartup<Program>();
+            });
     }
 }

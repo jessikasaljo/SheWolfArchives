@@ -16,7 +16,7 @@ using SheWolf.Infrastructure.Database;
 namespace API.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("books")]
     public class BookController : Controller
     {
         internal readonly IMediator _mediator;
@@ -80,11 +80,7 @@ namespace API.Controllers
             }
         }
 
-
-
         [HttpGet]
-        [Route("getAllBooks")]
-        [ResponseCache(CacheProfileName = "DefaultCache")]
         public async Task<IActionResult> GetAllBooks()
         {
             try
@@ -106,7 +102,7 @@ namespace API.Controllers
         }
 
         [HttpGet]
-        [Route("{bookId}")]
+        [Route("book/{bookId}")]
         public async Task<IActionResult> GetBookById(Guid bookId)
         {
             try
