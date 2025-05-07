@@ -1,7 +1,9 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
 function BookCard({ book }) {
-    const imageUrl = book.picture
+  const navigate = useNavigate();
+  const imageUrl = book.picture
     ? `/book_covers/${book.picture}`
     : 'https://upload.wikimedia.org/wikipedia/commons/a/ac/No_image_available.svg';
   
@@ -10,12 +12,18 @@ function BookCard({ book }) {
   return (
     <div
       className="book-card"
+      onClick={() => navigate(`/book/${book.id}`)}
       style={{
         border: '1px solid #ccc',
         padding: '16px',
         marginBottom: '20px',
         borderRadius: '8px',
         width: '200px',
+        cursor: 'pointer',
+        transition: 'transform 0.2s',
+        ':hover': {
+          transform: 'scale(1.02)'
+        }
       }}
     >
       <img

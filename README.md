@@ -96,7 +96,3 @@ API documentation is available through Swagger UI at `/swagger` when running the
 - SQL Server
 - Swagger/OpenAPI
 - BCrypt for password hashing
-
-## 📝 License
-
-This project is licensed under the MIT License.
